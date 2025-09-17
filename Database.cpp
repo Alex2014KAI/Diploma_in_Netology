@@ -35,7 +35,7 @@ namespace SPIDER
             );
         )");
 
-            std::cout << "CREATE TABLE Documents . Parametrs:  id SERIAL PRIMARY KEY, title TEXT" << std::endl;
+            // std::cout << "CREATE TABLE Documents . Parametrs:  id SERIAL PRIMARY KEY, title TEXT" << std::endl;
 
             tx.exec(R"(
             CREATE TABLE IF NOT EXISTS Words (
@@ -43,17 +43,17 @@ namespace SPIDER
                 word TEXT UNIQUE
             );
         )");
-            std::cout << "CREATE TABLE Documents . Parametrs:  id SERIAL PRIMARY KEY, word TEXT UNIQUE" << std::endl;
+            // std::cout << "CREATE TABLE Words . Parametrs:  id SERIAL PRIMARY KEY, word TEXT UNIQUE" << std::endl;
 
             tx.exec(R"(
-            CREATE TABLE IF NOT EXISTS Document_Word (
+            CREATE TABLE IF NOT EXISTS DocumentWords (
                 document_id INTEGER REFERENCES Documents(id),
                 word_id INTEGER REFERENCES Words(id),
                 frequency INTEGER,
                 PRIMARY KEY (document_id, word_id)
             );
         )");
-            std::cout << "CREATE TABLE Documents . Parametrs:  document_id INTEGER REFERENCES Documents(id), word_id INTEGER REFERENCES Words(id), frequency INTEGER, PRIMARY KEY(document_id, word_id)" << std::endl;
+            // std::cout << "CREATE TABLE DocumentWords . Parametrs:  document_id INTEGER REFERENCES Documents(id), word_id INTEGER REFERENCES Words(id), frequency INTEGER, PRIMARY KEY(document_id, word_id)" << std::endl;
 
             tx.commit();
         }
@@ -94,7 +94,86 @@ namespace SPIDER
         }
 
 
+    }
+
+    int Database::addURL(const std::string& url)
+    {     
+        try {
+            pqxx::work tx{ c };
+            pqxx::result r = tx.exec(
+                "INSERT INTO Documents (title) VALUES (" + tx.quote(url) + ") RETURNING id"
+            );
+            tx.commit();
+            return r[0][0].as<int>();
+        }
+        catch (const std::exception& e) {
+            std::cerr << "ERROR insertDocument: " << e.what() << "\n";
+            return -1;
+        }
+        
+
+        /*
+        pqxx::work tx{ c };
+        int id = tx.query_value<int>("INSERT INTO Documents (title) VALUES ($1) RETURNING document_id", url);
+        tx.commit();
+        */
+    }
+    int Database::addWord(const std::string& word)
+    {
+        try {
+            pqxx::work tx{ c };
+
+            pqxx::result r = tx.exec("INSERT INTO Words (word) VALUES (" + tx.quote(word) + ") ON CONFLICT(word) DO UPDATE SET word = EXCLUDED.word RETURNING id");
+
+            tx.commit();
+            return r[0][0].as<int>();
+        }
+        catch (const std::exception& e) {
+            std::cerr << "ERROR: " << e.what() << "\n";
+            return -1;
+        }
+
+    }
+    void Database::insertOrUpdateFrequency(int document_id, int word_id, int frequency)
+    {
+        try {
+            pqxx::work tx{ c };
+            tx.exec(pqxx::zview("INSERT INTO DocumentWords(document_id, word_id, frequency) VALUES (" + tx.quote(document_id) + ", " + tx.quote(word_id) + ", " + tx.quote(frequency) + ") ON CONFLICT(document_id, word_id) DO UPDATE SET frequency = EXCLUDED.frequency"));
+
+            tx.commit();
+        }
+        catch (const std::exception& e) {
+            std::cerr << "ERROR: " << e.what() << "\n";
+            return;
+        }
+        
+
     };
+    void Database::writeDataToTable(const std::string& url, const std::map<std::string, int>& wordFrequency)
+    {
+        try {
+            int document_id = addURL(url);
+            if (document_id < 0) {
+                throw std::exception("Received incorrect document id");
+                    return;
+            }
+            for (auto It = wordFrequency.begin(); It != wordFrequency.end(); It++) {
+                int word_id = addWord((*It).first);
+                std::cout << (*It).first << std::endl;
+                std::cout << word_id;
+                if (word_id < 0) {
+                    throw std::exception("Received incorrect word id");
+                    return;
+                }
+                insertOrUpdateFrequency(document_id, word_id, (*It).second);
+            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "ERROR: " << e.what() << "\n";
+            return;
+        }
+    };
+
 
 
 

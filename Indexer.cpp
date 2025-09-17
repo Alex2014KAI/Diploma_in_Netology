@@ -69,6 +69,7 @@ namespace SPIDER
 
     void Indexer::execute(const std::string& URL)
     {
+        html_ = URL;
         pageRequestHTML(URL);
         convertWordsLowerCase();
         wordFrequencyAnalysisText();

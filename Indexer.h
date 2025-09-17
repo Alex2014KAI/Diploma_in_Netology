@@ -4,6 +4,7 @@
 #include <regex>
 #include <fstream>
 #include <boost/locale.hpp>
+#include <vector>
 
 namespace SPIDER
 {
@@ -39,13 +40,16 @@ namespace SPIDER
 	public:
 		Indexer() = default;
 		void execute(const std::string& URL);
+		std::vector<std::string> getLinksOnTheCurrentSite(); // !!!!
 
 		private:
 		std::map<std::string, int> wordFrequency_;
 		std::string originPageHTML_;
 		std::string formattedPageHTML_;
-		std::string html_; // not currently in use
+		std::string html_;
 		CleaningHTMLTags cleaningHTMLTags_;
+
+		std::vector<std::string> linksOnTheCurrentSite;   // !!!!
 
 		void pageRequestHTML(const std::string& URL);
 		void convertWordsLowerCase();

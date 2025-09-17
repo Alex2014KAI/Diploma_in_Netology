@@ -3,6 +3,7 @@
 #include <fstream>
 #include <regex>
 #include <pqxx/pqxx>
+#include <map>
 
 namespace SPIDER
 {
@@ -25,9 +26,17 @@ namespace SPIDER
 		Database(std::string dataSetup);
 		void createTables();
 		void deleteTables();
+		void writeDataToTable(const std::string& url, const std::map<std::string, int>& wordFrequency);
+
+
+		
 
 	private:
 		pqxx::connection c;
+
+		int addURL(const std::string& url);
+		int addWord(const std::string& word);
+		void insertOrUpdateFrequency(int document_id, int word_id, int frequency);
 	};
 
 }
