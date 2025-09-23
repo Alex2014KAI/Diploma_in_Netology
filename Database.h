@@ -27,7 +27,7 @@ namespace SPIDER
 		void createTables();
 		void deleteTables();
 		void writeDataToTable(const std::string& url, const std::map<std::string, int>& wordFrequency);
-
+		bool checkingForURLExistence(const std::string& url);
 
 		
 

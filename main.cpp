@@ -3,7 +3,7 @@
 #include "Database.h"
 
 #define OLD_DEBUG
-// #define DEBUG_INDEXER
+//#define DEBUG_INDEXER
 #define DEBUG_DATABASE
 
 int main()
@@ -21,9 +21,9 @@ int main()
     SPIDER::BDSetup bdSetup("ini.txt");
 
     SPIDER::Database db(bdSetup.dataSetup_);
-    db.createTables();
-    // db.deleteTables();
+
     
+    db.createTables();
     std::map<std::string, int> debugWordFrequency1 = { 
         {"LExa", 5},
         {"Dima", 4 },
@@ -41,6 +41,12 @@ int main()
         {"stol", 220}
     };
     db.writeDataToTable("https//debugInfo", debugWordFrequency2);
+    
+    if (db.checkingForURLExistence("https//debugInfo")) {
+        std::cout << "https//debugInfo - SUCHECTVUET!!";
+    };
+
+    // db.deleteTables();
     
 #endif // DEBUG_DATABASE
 

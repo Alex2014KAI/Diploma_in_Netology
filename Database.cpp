@@ -31,11 +31,11 @@ namespace SPIDER
             tx.exec(R"(
             CREATE TABLE IF NOT EXISTS Documents (
                 id SERIAL PRIMARY KEY,
-                title TEXT
+                url TEXT
             );
         )");
 
-            // std::cout << "CREATE TABLE Documents . Parametrs:  id SERIAL PRIMARY KEY, title TEXT" << std::endl;
+            // std::cout << "CREATE TABLE Documents . Parametrs:  id SERIAL PRIMARY KEY, url TEXT" << std::endl; // title
 
             tx.exec(R"(
             CREATE TABLE IF NOT EXISTS Words (
@@ -101,7 +101,7 @@ namespace SPIDER
         try {
             pqxx::work tx{ c };
             pqxx::result r = tx.exec(
-                "INSERT INTO Documents (title) VALUES (" + tx.quote(url) + ") RETURNING id"
+                "INSERT INTO Documents (url) VALUES (" + tx.quote(url) + ") RETURNING id"
             );
             tx.commit();
             return r[0][0].as<int>();
@@ -114,7 +114,7 @@ namespace SPIDER
 
         /*
         pqxx::work tx{ c };
-        int id = tx.query_value<int>("INSERT INTO Documents (title) VALUES ($1) RETURNING document_id", url);
+        int id = tx.query_value<int>("INSERT INTO Documents (url) VALUES ($1) RETURNING document_id", url);
         tx.commit();
         */
     }
@@ -155,7 +155,7 @@ namespace SPIDER
             int document_id = addURL(url);
             if (document_id < 0) {
                 throw std::exception("Received incorrect document id");
-                    return;
+                return;
             }
             for (auto It = wordFrequency.begin(); It != wordFrequency.end(); It++) {
                 int word_id = addWord((*It).first);
@@ -171,6 +171,18 @@ namespace SPIDER
         catch (const std::exception& e) {
             std::cerr << "ERROR: " << e.what() << "\n";
             return;
+        }
+    };
+    bool Database::checkingForURLExistence(const std::string& url)
+    {
+        try {
+            pqxx::work tx{ c };
+            pqxx::result r = tx.exec("SELECT 1 FROM Documents WHERE url = " + tx.quote(url) + " LIMIT 1");
+            return !r.empty(); // Returns true if at least one result was found
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error checking link existence: " << e.what() << std::endl;
+            return false;
         }
     };
 

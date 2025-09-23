@@ -16,6 +16,11 @@ namespace SPIDER
         std::string line;
         while (std::getline(file, line)) { 
             originPageHTML_ += cleaningHTMLTags_.execute(line) + " ";
+
+            std::string debugURL = cleaningHTMLTags_.getURL(line);
+            if (debugURL.size() != 0) {
+                linksOnTheCurrentSite.push_back(debugURL);
+            }
         };
         file.close();
         // For debugging, there will be a normal request below
@@ -59,21 +64,38 @@ namespace SPIDER
             int value = pair.second;
             std::cout << key << ": " << value << std::endl;
         }
+
+        std::vector debigUrl = getLinksOnTheCurrentSite();
+        std::cout << "*******************************************" << std::endl;
+        for (auto It = debigUrl.begin(); It != debigUrl.end(); It++) {
+            std::cout << (*It) << std::endl;
+        }
+
         setData();
     }
 
     void Indexer::setData()
     {
+        // SPIDER::Database::writeDataToTable(html_, wordFrequency_);
         std::cout << "DATA SAVED" << std::endl;
     }
 
     void Indexer::execute(const std::string& URL)
     {
         html_ = URL;
+        // if (SPIDER::Database::checkingForURLExistence(html_)) return;
         pageRequestHTML(URL);
         convertWordsLowerCase();
         wordFrequencyAnalysisText();
         saveDataDatabase();
+    }
+
+    std::vector<std::string> Indexer::getLinksOnTheCurrentSite()
+    {
+        std::sort(linksOnTheCurrentSite.begin(), linksOnTheCurrentSite.end());
+        auto last = std::unique(linksOnTheCurrentSite.begin(), linksOnTheCurrentSite.end());
+        linksOnTheCurrentSite.erase(last, linksOnTheCurrentSite.end());
+        return linksOnTheCurrentSite;
     }
 
 
@@ -100,6 +122,19 @@ namespace SPIDER
         std::string no_tags = remove_html_tags(line);
         std::string cleaned = remove_punctuation_and_symbols(no_tags);
         return normalize_spaces(cleaned);
+    }
+
+    std::string CleaningHTMLTags::getURL(const std::string& html)
+    {
+        auto links_begin = std::sregex_iterator(html.begin(), html.end(), hrefTegs);
+        std::smatch match;
+
+        if (std::regex_search(html, match, hrefTegs)) {
+            return match[1].str();
+        }
+        else {
+            return "";
+        }
     }
 
 }

@@ -3,3 +3,13 @@
 <html><body><p>Hello <b>world</b>!</p></body></html>
 <html><body><p>Hello <b>world</b>!</p></body></html>
 <html><body><p>Hello <b>world</b>!</p></body></html>
+<a href="https://example.com/page1">
+Link 1
+</a>
+<a href='https://example.com/page2#anchor'>Link 2</a>
+<a href=https://example.com/page3>
+<a href='https://example.com/page2#anchor'>Link 2</a>
+<a href=https://example.com/page3>
+Link 3
+</a>
+<a href="https://example.com/page4#section">Link 4</a>
