@@ -5,45 +5,45 @@ namespace SPIDER
 
 // #define DEBUG_INDEXER
 
-    void Indexer::pageRequestHTML(const std::string& URL)
+    void Indexer::pageRequestHTML(const std::string& HTML)
     {
-        // For debugging, there will be a normal request below
-        std::ifstream file(URL);
+        // To read from a file
+        /*
+        std::ifstream file(HTML);
         if (!file) {
             throw std::logic_error("Failed to open file");
             return;
         }
+        */
+        // To read from a file
+        
+
+        std::istringstream file(HTML);
+
         std::string line;
         while (std::getline(file, line)) { 
             originPageHTML_ += cleaningHTMLTags_.execute(line) + " ";
 
             std::string debugURL = cleaningHTMLTags_.getURL(line);
             if (debugURL.size() != 0) {
+                if (debugURL == url_) continue; // Here is a link to the same site
+
+                if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
+                    debugURL.insert(0, "http://" + url_ + "/");
+                }
                 linksOnTheCurrentSite.push_back(debugURL);
             }
         };
-        file.close();
-        // For debugging, there will be a normal request below
 
-#ifdef DEBUG_INDEXER
-        std::cout << originPageHTML_;
-#endif // DEBUG_INDEXER
-
-        
-
+        // file.close();  // To read from a file
     }
 
     void Indexer::convertWordsLowerCase()
     {
         boost::locale::generator gen;
-        std::locale loc = gen("ru_RU.UTF-8"); // "en_US.UTF-8"
+        std::locale loc = gen("en_US.UTF-8"); //("ru_RU.UTF-8"); // "en_US.UTF-8"
         std::locale::global(loc);
         formattedPageHTML_ = boost::locale::to_lower(originPageHTML_, loc);
-
-#ifdef DEBUG_INDEXER
-        std::cout << std::endl;
-        std::cout << formattedPageHTML_ << std::endl;
-#endif // DEBUG_INDEXER
     }
 
     void Indexer::wordFrequencyAnalysisText()
@@ -76,15 +76,16 @@ namespace SPIDER
 
     void Indexer::setData()
     {
-        // SPIDER::Database::writeDataToTable(html_, wordFrequency_);
+        // SPIDER::Database::writeDataToTable(url_, wordFrequency_);
         std::cout << "DATA SAVED" << std::endl;
     }
 
-    void Indexer::execute(const std::string& URL)
+    void Indexer::execute(const std::string& URL, const std::string& html)
     {
-        html_ = URL;
-        // if (SPIDER::Database::checkingForURLExistence(html_)) return;
-        pageRequestHTML(URL);
+        // html_ = html;
+        url_ = URL;
+        // if (SPIDER::Database::checkingForURLExistence(url_)) return;
+        pageRequestHTML(html);
         convertWordsLowerCase();
         wordFrequencyAnalysisText();
         saveDataDatabase();
@@ -96,6 +97,26 @@ namespace SPIDER
         auto last = std::unique(linksOnTheCurrentSite.begin(), linksOnTheCurrentSite.end());
         linksOnTheCurrentSite.erase(last, linksOnTheCurrentSite.end());
         return linksOnTheCurrentSite;
+    }
+
+    std::map<std::string, int> Indexer::getWordFrequency()
+    {
+        return wordFrequency_;
+    }
+
+    void Indexer::printDataServer()
+    {
+        for (const auto& pair : wordFrequency_) {
+            const std::string& key = pair.first;
+            int value = pair.second;
+            std::cout << key << ": " << value << std::endl;
+        }
+
+        std::vector debigUrl = getLinksOnTheCurrentSite();
+        std::cout << "*******************************************" << std::endl;
+        for (auto It = debigUrl.begin(); It != debigUrl.end(); It++) {
+            std::cout << (*It) << std::endl;
+        }
     }
 
 

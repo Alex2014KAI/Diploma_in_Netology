@@ -40,19 +40,22 @@ namespace SPIDER
 	{
 	public:
 		Indexer() = default;
-		void execute(const std::string& URL);
+		void execute(const std::string& URL, const std::string& html);
 		std::vector<std::string> getLinksOnTheCurrentSite();
+		std::map<std::string, int> getWordFrequency();
+		void printDataServer(); // Method for debugging
 
 		private:
 		std::map<std::string, int> wordFrequency_;
 		std::string originPageHTML_;
 		std::string formattedPageHTML_;
+		std::string url_;
 		std::string html_;
 		CleaningHTMLTags cleaningHTMLTags_;
 
 		std::vector<std::string> linksOnTheCurrentSite;
 
-		void pageRequestHTML(const std::string& URL);
+		void pageRequestHTML(const std::string& HTML);
 		void convertWordsLowerCase();
 		void wordFrequencyAnalysisText();
 		void saveDataDatabase();

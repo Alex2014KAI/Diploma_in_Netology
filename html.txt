@@ -13,3 +13,6 @@ Link 1
 Link 3
 </a>
 <a href="https://example.com/page4#section">Link 4</a>
+<head>Lib.Ru: вЙВМЙПФЕЛБ нБЛУЙНБ нПЫЛПЧБ</head>
+Lib.Ru: Библиотека Максима Мошкова
+                           
