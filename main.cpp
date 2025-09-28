@@ -4,6 +4,9 @@
 #include "HTTPClient.h"
 #include "Spider.h"
 
+#include "Thread_pool.h"
+#include "globals.h"
+
 #include <boost/locale.hpp>
 
 #include <windows.h>
@@ -16,7 +19,38 @@
 //#define DEBUG_DATABASE
 //#define DEBUG_HTTPCLIENT
 //#define DEBUG_INDEXER_AND_DEBUG_HTTPCLIENT
-#define DEBUG_SPIDER
+//#define DEBUG_SPIDER
+#define DEBUG_THREAD_POOL
+
+
+#ifdef DEBUG_THREAD_POOL
+    // Примеры функций
+std::mutex global_mtx1;
+std::mutex global_mtx2;
+
+void fo1() {
+    std::cout << "Work fo1" << std::endl;
+}
+
+void fo2() {
+    std::cout << "Work fo2" << std::endl;
+}
+void fo3() {
+    std::cout << "Work fo3" << std::endl;
+}
+
+void fo4() {
+    std::cout << "Work fo4" << std::endl;
+}
+void fo5() {
+    std::cout << "Work fo5" <<  std::endl;
+}
+
+void fo6() {
+    std::cout << "Work fo6" << std::endl;
+}
+// Конец примеров функций
+#endif // DEBUG_THREAD_POOL
 
 
 int main()
@@ -64,8 +98,9 @@ int main()
     if (db.checkingForURLExistence("https//debugInfo")) {
         std::cout << "https//debugInfo - SUCHECTVUET!!";
     };
+    
 
-    // db.deleteTables();
+    //db.deleteTables();
     
 #endif // DEBUG_DATABASE
 
@@ -160,6 +195,26 @@ int main()
     spider.execute();
 
 #endif // DEBUG_SPIDER
+
+#ifdef DEBUG_THREAD_POOL
+    vector < std::function<void()> > vecFunc{ fo1, fo2, fo3, fo4, fo5, fo6};
+    int coutnFn = 0;
+
+    SPIDER::Thread_pool thread_pool_;
+
+    //while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        thread_pool_.submit(vecFunc[0], "http//0");
+        thread_pool_.submit(vecFunc[1], "http//1");
+        //thread_pool_.submit(vecFunc[2], "http//2");
+        //thread_pool_.submit(vecFunc[3], "http//3");
+        //thread_pool_.submit(vecFunc[4], "http//4");
+        //thread_pool_.submit(vecFunc[5], "http//5");
+        std::cout << "**********************************" << std::endl;
+        //if (coutnFn == 4) { coutnFn = 0; };
+        //coutnFn += 2;
+    //}
+#endif // DEBUG_THREAD_POOL
 
 
 #endif // OLD_DEBUG 

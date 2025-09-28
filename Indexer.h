@@ -41,8 +41,12 @@ namespace SPIDER
 	class Indexer
 	{
 	public:
-		Indexer(): database_("host=localhost port = 5432 dbname = postgres user = postgres password = 738109lexa") {};
-		Indexer(const std::string& setupDB) : database_(setupDB) {};
+		Indexer(): database_("host=localhost port = 5432 dbname = postgres user = postgres password = 738109lexa") {
+			database_.createTables();
+		};
+		Indexer(const std::string& setupDB) : database_(setupDB) {
+			database_.createTables();
+		};
 
 		void execute(const std::string& URL, const std::string& html);
 		std::vector<std::string> getLinksOnTheCurrentSite();

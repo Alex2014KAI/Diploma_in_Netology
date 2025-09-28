@@ -25,7 +25,7 @@ namespace SPIDER
 		Spider(const std::string& setupDB, const std::string& startPage, int depthRecursion): 
 			indexer_(setupDB), startPage_(startPage), depthRecursion_(depthRecursion){};
 		// bool execute(const std::string& host);
-		bool execute();
+		void execute();
 	private:
 
 		Indexer indexer_;

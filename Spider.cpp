@@ -29,7 +29,7 @@ namespace SPIDER
 		*/
 	}
 
-	bool Spider::execute()
+	void Spider::execute()
 	{
 		// Возможно в execute нужно единыжды обработать стартовую страничку а далее рекрсией или for проработать глубину сайта
 		HTTPClientSinc hTTPClient_(startPage_);
@@ -47,7 +47,7 @@ namespace SPIDER
 			std::cerr << "Request failed: " << error << std::endl;
 		}
 
-		return false;
+		return;
 	}
 
 	
