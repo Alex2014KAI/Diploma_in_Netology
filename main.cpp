@@ -136,12 +136,14 @@ int main()
     std::string response_body;
     std::string error;
 
+    SPIDER::BDSetup bdSetup("ini.txt");
+
     SPIDER::HTTPClientSinc client1(host);
     if (client1.get(target, response_body, error))
     {
         std::cout << "Response body:\n" << response_body << std::endl;
         std::cout << "***********************************************************************" << std::endl;
-        SPIDER::Indexer indexer;
+        SPIDER::Indexer indexer(bdSetup.dataSetup_);
         indexer.execute("lib.ru", response_body);
     }
     else

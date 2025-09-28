@@ -22,7 +22,7 @@ namespace SPIDER
     void BDSetup::printDataBase() { std::cout << dataSetup_; };
 
 
-    Database::Database(std::string dataSetup):c { dataSetup } {}
+    Database::Database(const std::string& dataSetup):c { dataSetup } {}
 
     void Database::createTables()
     {

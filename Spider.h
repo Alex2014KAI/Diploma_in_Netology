@@ -23,13 +23,13 @@ namespace SPIDER
 	{
 	public:
 		Spider(const std::string& setupDB, const std::string& startPage, int depthRecursion): 
-									database_(setupDB), startPage_(startPage), depthRecursion_(depthRecursion){};
+			indexer_(setupDB), startPage_(startPage), depthRecursion_(depthRecursion){};
 		// bool execute(const std::string& host);
 		bool execute();
 	private:
 
 		Indexer indexer_;
-		Database database_;
+		// Database database_;
 		//HTTPClientSinc hTTPClient_;
 
 		std::string startPage_;

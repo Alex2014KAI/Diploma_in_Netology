@@ -76,15 +76,16 @@ namespace SPIDER
 
     void Indexer::setData()
     {
-        // SPIDER::Database::writeDataToTable(url_, wordFrequency_);
+        database_.writeDataToTable(url_, wordFrequency_);
         std::cout << "DATA SAVED" << std::endl;
     }
+
 
     void Indexer::execute(const std::string& URL, const std::string& html)
     {
         // html_ = html;
         url_ = URL;
-        // if (SPIDER::Database::checkingForURLExistence(url_)) return;
+        if (database_.checkingForURLExistence(url_)) return;
         pageRequestHTML(html);
         convertWordsLowerCase();
         wordFrequencyAnalysisText();

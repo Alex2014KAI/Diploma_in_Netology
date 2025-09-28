@@ -23,7 +23,7 @@ namespace SPIDER
 	class Database
 	{
 	public:
-		Database(std::string dataSetup);
+		Database(const std::string& dataSetup);
 		void createTables();
 		void deleteTables();
 		void writeDataToTable(const std::string& url, const std::map<std::string, int>& wordFrequency);

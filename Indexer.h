@@ -7,6 +7,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "Database.h"
+
 namespace SPIDER
 {
 
@@ -39,7 +41,9 @@ namespace SPIDER
 	class Indexer
 	{
 	public:
-		Indexer() = default;
+		Indexer(): database_("host=localhost port = 5432 dbname = postgres user = postgres password = 738109lexa") {};
+		Indexer(const std::string& setupDB) : database_(setupDB) {};
+
 		void execute(const std::string& URL, const std::string& html);
 		std::vector<std::string> getLinksOnTheCurrentSite();
 		std::map<std::string, int> getWordFrequency();
@@ -54,6 +58,8 @@ namespace SPIDER
 		CleaningHTMLTags cleaningHTMLTags_;
 
 		std::vector<std::string> linksOnTheCurrentSite;
+
+		Database database_;
 
 		void pageRequestHTML(const std::string& HTML);
 		void convertWordsLowerCase();
