@@ -15,8 +15,8 @@
 //#define DEBUG_INDEXER
 //#define DEBUG_DATABASE
 //#define DEBUG_HTTPCLIENT
-#define DEBUG_INDEXER_AND_DEBUG_HTTPCLIENT
-//#define DEBUG_SPIDER
+//#define DEBUG_INDEXER_AND_DEBUG_HTTPCLIENT
+#define DEBUG_SPIDER
 
 
 int main()
@@ -154,6 +154,10 @@ int main()
 
 #ifdef DEBUG_SPIDER
     SPIDER::SpiderSetup spiderSetup("ini.txt");
+
+    SPIDER::Spider spider(spiderSetup.dataSetupBD_, spiderSetup.startPage_, spiderSetup.depthRecursion_);
+
+    spider.execute();
 
 #endif // DEBUG_SPIDER
 

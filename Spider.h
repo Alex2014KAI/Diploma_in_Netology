@@ -29,13 +29,10 @@ namespace SPIDER
 	private:
 
 		Indexer indexer_;
-		// Database database_;
 		//HTTPClientSinc hTTPClient_;
 
 		std::string startPage_;
 		int  depthRecursion_;
-
-		void saveData();
 	};
 }
 

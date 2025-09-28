@@ -21,13 +21,17 @@ namespace SPIDER
 		depthRecursion_ = std::stoi(debugDepthRecursion);
 		file.close();
 		dataSetupBD_ = host_ + " " + port_ + " " + dbname_ + " " + user_ + " " + password_;
+
+		/*
 		std::cout << dataSetupBD_ <<std::endl;
 		std::cout << startPage_ << std::endl;
 		std::cout << depthRecursion_ << std::endl;
+		*/
 	}
 
 	bool Spider::execute()
 	{
+		// Возможно в execute нужно единыжды обработать стартовую страничку а далее рекрсией или for проработать глубину сайта
 		HTTPClientSinc hTTPClient_(startPage_);
 		std::string target = "/";  // Необходимо обрадотать url и выделить host И target
 		std::string response_body;
@@ -36,10 +40,7 @@ namespace SPIDER
 		{
 			std::cout << "Response body:\n" << response_body << std::endl;
 			std::cout << "***********************************************************************" << std::endl;
-			SPIDER::Indexer indexer;
-			indexer.execute(startPage_, response_body);
-
-			// saveData();
+			indexer_.execute(startPage_, response_body);
 		}
 		else
 		{

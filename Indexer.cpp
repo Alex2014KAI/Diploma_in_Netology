@@ -85,7 +85,10 @@ namespace SPIDER
     {
         // html_ = html;
         url_ = URL;
-        if (database_.checkingForURLExistence(url_)) return;
+        if (database_.checkingForURLExistence(url_)) {
+            std::cout << "The URL is in the database, but the page is not processed." << std::endl;
+            return;
+        };
         pageRequestHTML(html);
         convertWordsLowerCase();
         wordFrequencyAnalysisText();
