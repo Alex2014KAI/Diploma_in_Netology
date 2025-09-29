@@ -6,11 +6,35 @@
 #include <boost/locale.hpp>
 #include <vector>
 #include <algorithm>
+#include <unordered_set>
 
 #include "Database.h"
 
 namespace SPIDER
 {
+	struct Link {
+		std::string url_;
+		std::string host_;
+		std::string target_;
+		int currentRecursionLevel_;
+		Link(std::string url, int currentRecursionLevel): url_(url), currentRecursionLevel_(currentRecursionLevel){
+			size_t scheme_end = url_.find("://");
+			size_t host_start = (scheme_end == std::string::npos) ? 0 : scheme_end + 3;
+
+			size_t path_start = url_.find('/', host_start);
+
+			if (path_start == std::string::npos) {
+				host_ = url.substr(host_start);
+				target_ = "/";
+			}
+			else {
+				host_ = url.substr(host_start, path_start - host_start);
+				target_ = url.substr(path_start);
+			}
+			std::cout << "Host: " << host_ << std::endl;
+			std::cout << "Target: " << target_ << std::endl;
+		}
+	};
 
 	class CleaningHTMLTags {
 	public:
@@ -41,15 +65,21 @@ namespace SPIDER
 	class Indexer
 	{
 	public:
-		Indexer(): database_("host=localhost port = 5432 dbname = postgres user = postgres password = 738109lexa") {
+		Indexer(): database_("host=localhost port = 5432 dbname = postgres user = postgres password = 738109lexa"), currentLink("", -1) {
 			database_.createTables();
 		};
-		Indexer(const std::string& setupDB) : database_(setupDB) {
+		Indexer(const std::string& setupDB) : database_(setupDB), currentLink("", -1) {
+			database_.createTables();
+		};
+		Indexer(const std::string& setupDB, int maxRecursionLevel) : database_(setupDB), maxRecursionLevel_(maxRecursionLevel), currentLink("", -1) {
 			database_.createTables();
 		};
 
 		void execute(const std::string& URL, const std::string& html);
+		void execute(const Link& link, const std::string& html);
+
 		std::vector<std::string> getLinksOnTheCurrentSite();
+		std::vector<Link> getLinksOnTheCurrentSiteLink();
 		std::map<std::string, int> getWordFrequency();
 		void printDataServer(); // Method for debugging
 
@@ -62,10 +92,14 @@ namespace SPIDER
 		CleaningHTMLTags cleaningHTMLTags_;
 
 		std::vector<std::string> linksOnTheCurrentSite;
+		std::vector<Link> linksOnTheCurrentSiteLink;
+		Link currentLink;
 
 		Database database_;
+		int maxRecursionLevel_;
 
 		void pageRequestHTML(const std::string& HTML);
+		void pageRequestHTML_Links(const std::string& HTML);
 		void convertWordsLowerCase();
 		void wordFrequencyAnalysisText();
 		void saveDataDatabase();

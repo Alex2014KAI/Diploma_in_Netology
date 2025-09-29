@@ -31,11 +31,31 @@ namespace SPIDER
                 if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
                     debugURL.insert(0, "http://" + url_ + "/");
                 }
-                linksOnTheCurrentSite.push_back(debugURL);
+                linksOnTheCurrentSite.push_back(debugURL); // to work with links
             }
         };
 
         // file.close();  // To read from a file
+    }
+
+    void Indexer::pageRequestHTML_Links(const std::string& HTML)
+    {
+        std::istringstream file(HTML);
+
+        std::string line;
+        while (std::getline(file, line)) {
+            originPageHTML_ += cleaningHTMLTags_.execute(line) + " ";
+
+            std::string debugURL = cleaningHTMLTags_.getURL(line);
+            if (debugURL.size() != 0) {
+                if (debugURL == url_) continue; // Here is a link to the same site
+
+                if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
+                    debugURL.insert(0, "http://" + url_ + "/");
+                }
+                linksOnTheCurrentSiteLink.push_back(Link(debugURL, currentLink.currentRecursionLevel_++)); // to work with links
+            }
+        };
     }
 
     void Indexer::convertWordsLowerCase()
@@ -97,12 +117,48 @@ namespace SPIDER
         saveDataDatabase();
     }
 
+    void Indexer::execute(const Link& link, const std::string& html)
+    {
+        if (link.currentRecursionLevel_ == maxRecursionLevel_) return;
+        currentLink = link;
+        url_ = link.url_;
+        
+        if (database_.checkingForURLExistence(url_)) {
+            std::cout << "The URL is in the database, but the page is not processed." << std::endl;
+            return;
+        };
+
+        pageRequestHTML_Links(html);
+        convertWordsLowerCase();
+        wordFrequencyAnalysisText();
+        saveDataDatabase();
+    }
+
     std::vector<std::string> Indexer::getLinksOnTheCurrentSite()
     {
         std::sort(linksOnTheCurrentSite.begin(), linksOnTheCurrentSite.end());
         auto last = std::unique(linksOnTheCurrentSite.begin(), linksOnTheCurrentSite.end());
         linksOnTheCurrentSite.erase(last, linksOnTheCurrentSite.end());
         return linksOnTheCurrentSite;
+    }
+
+    std::vector<Link> Indexer::getLinksOnTheCurrentSiteLink()
+    {
+        std::unordered_set<std::string> seenUrls;
+
+        auto it = std::remove_if(linksOnTheCurrentSiteLink.begin(), linksOnTheCurrentSiteLink.end(), [&](const Link& link) {
+            if (seenUrls.count(link.url_) > 0) {
+                return true;
+            }
+            else {
+                seenUrls.insert(link.url_);
+                return false;
+            }
+            });
+
+        linksOnTheCurrentSiteLink.erase(it, linksOnTheCurrentSiteLink.end());
+        
+        return linksOnTheCurrentSiteLink;
     }
 
     std::map<std::string, int> Indexer::getWordFrequency()

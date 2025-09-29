@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "globals.h"
+#include "Spider.h"
 
 using namespace std;
 
@@ -20,13 +21,13 @@ namespace SPIDER
         void push(T fn) {
             lock_guard<mutex> lg(mt); // We grab a mutex so that no one else can add a function to the thread.
             queue_.push(std::move(fn));
-            cv.notify_one();
+            cv.notify_all();
         }
 
         T pop() {
             unique_lock<std::mutex> ul(mt);
             cv.wait(ul, [this]() { return !queue_.empty(); });
-            auto func = std::move(queue_.front());
+            T func = std::move(queue_.front());
             queue_.pop();
             return func;
         }
@@ -38,8 +39,10 @@ namespace SPIDER
 
     class Thread_pool {
     public:
-        Thread_pool() {
+        Thread_pool(): spiderSetup("ini.txt") {
             numberThreads = _Thrd_hardware_concurrency();
+            currentRecursionLevel = 0;
+            maxRecursionLevel = spiderSetup.depthRecursion_;
             //std::cout << numberThreads << std::endl;
             for (int i{ 0 }; i < (numberThreads - 3); i++) {
                 vectorThread.push_back(thread(&Thread_pool::work, this));
@@ -53,26 +56,41 @@ namespace SPIDER
         };
 
         void work() {
-            std::function<void()> currentTask;
-
             while (true) {
-                currentTask = queueFunction.pop();
-                cout << "Сайт анализируется потоком:" << this_thread::get_id() << endl;
-                currentTask();
+                Link link = queueURL.pop();
+                cout << "Сайт " << link.url_ << " анализируется потоком:" << this_thread::get_id() << endl;
+                
+                Spider spider(spiderSetup.dataSetupBD_, spiderSetup.startPage_, spiderSetup.depthRecursion_);
+                spider.execute(link);
+
+                std::vector<Link> currentLinkPage = spider.getLinksOnTheCurrentSiteSpider_Link();
+                link_Table.insert(link_Table.end(), currentLinkPage.begin(), currentLinkPage.end());      
+
+                while (!link_Table.empty()) {
+                    Link first_element = link_Table.front();
+                    link_Table.erase(link_Table.begin());
+                    submit(first_element);
+                }
 
             }
         };
 
-        void submit(std::function<void()> fn, std::string url) {
-            std::cout << "Добавлен сайт:  " << url << std::endl;
-            queueFunction.push(move(fn));
+        void submit(Link link) {
+            if (link.currentRecursionLevel_ == maxRecursionLevel) return;
+            std::cout << "Добавлен сайт:  " << link.url_ << std::endl;
+            queueURL.push(link);
         };
 
 
     private:
         int numberThreads;
         vector<thread> vectorThread;
-        safe_queue<std::function<void()>> queueFunction;
-    };
+        safe_queue<Link> queueURL;
 
+        SpiderSetup spiderSetup;
+        std::vector<Link> link_Table;
+        mutex mt1;
+        int currentRecursionLevel;
+        int maxRecursionLevel;
+    };
 }

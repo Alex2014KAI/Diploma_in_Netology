@@ -50,5 +50,36 @@ namespace SPIDER
 		return;
 	}
 
+	void Spider::execute(const Link link)
+	{
+		std::cout << "Вызвался void Spider::execute(const Link link)" << std::endl;
+		HTTPClientSinc hTTPClient_(link.host_);
+		std::string target = link.target_;
+		std::string response_body;
+		std::string error;
+		if (hTTPClient_.get(target, response_body, error))
+		{
+			//std::cout << "Response body:\n" << response_body << std::endl;
+			//std::cout << "***********************************************************************" << std::endl;
+			indexer_.execute(link, response_body);
+		}
+		else
+		{
+			std::cerr << "Request failed: " << error << std::endl;
+		}
+
+		return;
+	}
+
+	std::vector<std::string> Spider::getLinksOnTheCurrentSiteSpider()
+	{
+		return indexer_.getLinksOnTheCurrentSite();
+	}
+
+	std::vector<Link> Spider::getLinksOnTheCurrentSiteSpider_Link()
+	{
+		return indexer_.getLinksOnTheCurrentSiteLink();
+	}
+
 	
 }

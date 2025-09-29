@@ -19,13 +19,19 @@ namespace SPIDER
 		std::string password_;
 	};
 
+
+
 	class Spider
 	{
 	public:
 		Spider(const std::string& setupDB, const std::string& startPage, int depthRecursion): 
-			indexer_(setupDB), startPage_(startPage), depthRecursion_(depthRecursion){};
+			indexer_(setupDB, depthRecursion), startPage_(startPage), depthRecursion_(depthRecursion){};
 		// bool execute(const std::string& host);
 		void execute();
+		void execute(const Link link);
+		std::vector<std::string> getLinksOnTheCurrentSiteSpider();
+		std::vector<Link> getLinksOnTheCurrentSiteSpider_Link();
+
 	private:
 
 		Indexer indexer_;
