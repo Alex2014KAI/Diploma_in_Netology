@@ -41,9 +41,7 @@ namespace SPIDER
     public:
         Thread_pool(): spiderSetup("ini.txt") {
             numberThreads = _Thrd_hardware_concurrency();
-            currentRecursionLevel = 0;
             maxRecursionLevel = spiderSetup.depthRecursion_;
-            //std::cout << numberThreads << std::endl;
             for (int i{ 0 }; i < (numberThreads - 3); i++) {
                 vectorThread.push_back(thread(&Thread_pool::work, this));
             }
@@ -60,16 +58,16 @@ namespace SPIDER
                 Link link = queueURL.pop();
                 cout << "Сайт " << link.url_ << " анализируется потоком:" << this_thread::get_id() << endl;
                 
-                Spider spider(spiderSetup.dataSetupBD_, spiderSetup.startPage_, spiderSetup.depthRecursion_);
+                Spider spider(spiderSetup.dataSetupBD_, maxRecursionLevel);
                 spider.execute(link);
 
                 std::vector<Link> currentLinkPage = spider.getLinksOnTheCurrentSiteSpider_Link();
                 link_Table.insert(link_Table.end(), currentLinkPage.begin(), currentLinkPage.end());      
 
                 while (!link_Table.empty()) {
-                    Link first_element = link_Table.front();
+                    Link link = link_Table.front();
                     link_Table.erase(link_Table.begin());
-                    submit(first_element);
+                    submit(link);
                 }
 
             }
@@ -90,7 +88,6 @@ namespace SPIDER
         SpiderSetup spiderSetup;
         std::vector<Link> link_Table;
         mutex mt1;
-        int currentRecursionLevel;
         int maxRecursionLevel;
     };
 }

@@ -34,6 +34,7 @@ namespace SPIDER
 
 	};
 
+	/*
 	class HTTPClient : public std::enable_shared_from_this<HTTPClient> {
 	public:
 		HTTPClient(net::io_context& ioc, const std::string& host, const std::string& target, int version = 11)
@@ -57,5 +58,6 @@ namespace SPIDER
 		void on_read(beast::error_code ec, std::size_t bytes_transferred);
 		void fail(beast::error_code ec, char const* what);
 	};
+	*/
 }
 

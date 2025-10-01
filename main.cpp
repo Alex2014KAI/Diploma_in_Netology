@@ -14,14 +14,7 @@
 #include <io.h>
 #include <fcntl.h>
 
-#define OLD_DEBUG
-//#define DEBUG_INDEXER
-//#define DEBUG_LINK
-//#define DEBUG_DATABASE
-//#define DEBUG_HTTPCLIENT
-//#define DEBUG_INDEXER_AND_DEBUG_HTTPCLIENT
-//#define DEBUG_SPIDER
-#define DEBUG_THREAD_POOL
+
 
 
 int main()
@@ -109,35 +102,6 @@ int main()
         std::cerr << "Request failed: " << error << std::endl;
     }
 
-    /*
-    std::cout << "*****************************************************************************************" << std::endl;
-
-    host = "httpbin.org";
-    SPIDER::HTTPClientSinc client2(host, port);
-    if (client2.get(target, response_body, error))
-    {
-        std::cout << "Response body:\n" << response_body << std::endl;
-    }
-    else
-    {
-        std::cerr << "Request failed: " << error << std::endl;
-    }
-
-    */
-    
-    
-
-
-    /*
-    net::io_context ioc;
-
-    // Хост и путь запроса
-    auto client = std::make_shared<SPIDER::HTTPClient>(ioc, "lib.ru", "/");
-
-    client->run();
-
-    ioc.run();
-    */
 #endif // DEBUG_HTTPCLIENT
 
 #ifdef DEBUG_INDEXER_AND_DEBUG_HTTPCLIENT
@@ -178,7 +142,7 @@ int main()
 
     //while (true) {
         // std::this_thread::sleep_for(std::chrono::seconds(2));
-        SPIDER::Link startLink("lib.ru", 1);
+        SPIDER::Link startLink("lib.ru", 1); // httpbin.org
         thread_pool_.submit(startLink);
         //thread_pool_.submit("http//1");
         std::cout << "**********************************" << std::endl;
@@ -189,5 +153,19 @@ int main()
 
 
 #endif // OLD_DEBUG 
+
+
+
+#ifndef OLD_DEBUG
+        // *******************Working code of the program*****************
+        //****************************************************************
+
+        SPIDER::SpiderSetup setupData("ini.txt");
+        SPIDER::Link startLink(setupData.startPage_, 1);
+
+        SPIDER::Thread_pool thread_pool_;
+        thread_pool_.submit(startLink);
+
+#endif // !OLD_DEBUG
 
 }

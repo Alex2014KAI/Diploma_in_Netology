@@ -21,46 +21,23 @@ namespace SPIDER
 		depthRecursion_ = std::stoi(debugDepthRecursion);
 		file.close();
 		dataSetupBD_ = host_ + " " + port_ + " " + dbname_ + " " + user_ + " " + password_;
-
-		/*
-		std::cout << dataSetupBD_ <<std::endl;
-		std::cout << startPage_ << std::endl;
-		std::cout << depthRecursion_ << std::endl;
-		*/
 	}
 
-	void Spider::execute()
-	{
-		// Возможно в execute нужно единыжды обработать стартовую страничку а далее рекрсией или for проработать глубину сайта
-		HTTPClientSinc hTTPClient_(startPage_);
-		std::string target = "/";  // Необходимо обрадотать url и выделить host И target
-		std::string response_body;
-		std::string error;
-		if (hTTPClient_.get(target, response_body, error))
-		{
-			std::cout << "Response body:\n" << response_body << std::endl;
-			std::cout << "***********************************************************************" << std::endl;
-			indexer_.execute(startPage_, response_body);
-		}
-		else
-		{
-			std::cerr << "Request failed: " << error << std::endl;
-		}
 
-		return;
-	}
 
 	void Spider::execute(const Link link)
 	{
-		std::cout << "Вызвался void Spider::execute(const Link link)" << std::endl;
 		HTTPClientSinc hTTPClient_(link.host_);
 		std::string target = link.target_;
 		std::string response_body;
 		std::string error;
 		if (hTTPClient_.get(target, response_body, error))
 		{
-			//std::cout << "Response body:\n" << response_body << std::endl;
-			//std::cout << "***********************************************************************" << std::endl;
+#ifdef DEBUG_PRINT_DATA
+			std::cout << "Response body:\n" << response_body << std::endl;
+			std::cout << "***********************************************************************" << std::endl;
+#endif // DEBUG_PRINT_DATA
+			
 			indexer_.execute(link, response_body);
 		}
 		else

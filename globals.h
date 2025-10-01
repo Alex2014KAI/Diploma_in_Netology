@@ -3,9 +3,15 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <mutex>
+//#define OLD_DEBUG
+//#define DEBUG_INDEXER
+//#define DEBUG_LINK
+//#define DEBUG_DATABASE
+//#define DEBUG_HTTPCLIENT
+//#define DEBUG_INDEXER_AND_DEBUG_HTTPCLIENT
+//#define DEBUG_SPIDER
+//#define DEBUG_THREAD_POOL
 
-extern std::mutex global_mtx1;
-extern std::mutex global_mtx2;
+//#define DEBUG_PRINT_DATA
 
 #endif

@@ -24,10 +24,11 @@ namespace SPIDER
         while (std::getline(file, line)) { 
             originPageHTML_ += cleaningHTMLTags_.execute(line) + " ";
 
+            // if (urlIsNotImage(line)) continue;   // if the link is to a picture
             std::string debugURL = cleaningHTMLTags_.getURL(line);
             if (debugURL.size() != 0) {
                 if (debugURL == url_) continue; // Here is a link to the same site
-
+           
                 if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
                     debugURL.insert(0, "http://" + url_ + "/");
                 }
@@ -46,10 +47,11 @@ namespace SPIDER
         while (std::getline(file, line)) {
             originPageHTML_ += cleaningHTMLTags_.execute(line) + " ";
 
+            // if (urlIsNotImage(line)) continue;   // if the link is to a picture
             std::string debugURL = cleaningHTMLTags_.getURL(line);
             if (debugURL.size() != 0) {
                 if (debugURL == url_) continue; // Here is a link to the same site
-
+                // ѕроверка на то что ссылка не на картинку
                 if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
                     debugURL.insert(0, "http://" + url_ + "/");
                 }
@@ -78,7 +80,8 @@ namespace SPIDER
     }
 
     void Indexer::saveDataDatabase()
-    {// need to save asynchronously
+    {
+#ifdef DEBUG_PRINT_DATA
         for (const auto& pair : wordFrequency_) {
             const std::string& key = pair.first;
             int value = pair.second;
@@ -90,6 +93,7 @@ namespace SPIDER
         for (auto It = debigUrl.begin(); It != debigUrl.end(); It++) {
             std::cout << (*It) << std::endl;
         }
+#endif // DEBUG_PRINT_DATA
 
         setData();
     }
@@ -97,7 +101,30 @@ namespace SPIDER
     void Indexer::setData()
     {
         database_.writeDataToTable(url_, wordFrequency_);
+
+#ifdef DEBUG_PRINT_DATA
         std::cout << "DATA SAVED" << std::endl;
+#endif // DEBUG_PRINT_DATA
+    }
+
+    bool Indexer::urlIsNotImage(const std::string& line)
+    {
+        std::regex link_regex(R"(<a\s+[^>]*href=["']([^"']+)["'][^>]*>.*?</a>)", std::regex::icase);
+        
+        std::regex img_ext_regex(R"(\.(jpg|jpeg|png|gif|bmp|svg)$)", std::regex::icase);
+
+        auto begin = std::sregex_iterator(line.begin(), line.end(), link_regex);
+        auto end = std::sregex_iterator();
+
+        for (auto it = begin; it != end; ++it) {
+            std::smatch match = *it;
+            std::string href = match[1].str();
+
+            if (!std::regex_search(href, img_ext_regex)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 

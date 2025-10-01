@@ -48,6 +48,7 @@ namespace SPIDER
         }
     }
 
+    /*
     void HTTPClient::run() {
         // Запускаем асинхронное разрешение DNS
         resolver_.async_resolve(host_, "80",
@@ -113,6 +114,6 @@ namespace SPIDER
     {
         std::cerr << what << ": " << ec.message() << "\n";
     }
-
+    */
 
 }

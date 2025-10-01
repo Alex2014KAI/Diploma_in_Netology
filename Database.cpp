@@ -110,13 +110,6 @@ namespace SPIDER
             std::cerr << "ERROR insertDocument: " << e.what() << "\n";
             return -1;
         }
-        
-
-        /*
-        pqxx::work tx{ c };
-        int id = tx.query_value<int>("INSERT INTO Documents (url) VALUES ($1) RETURNING document_id", url);
-        tx.commit();
-        */
     }
     int Database::addWord(const std::string& word)
     {
@@ -159,8 +152,10 @@ namespace SPIDER
             }
             for (auto It = wordFrequency.begin(); It != wordFrequency.end(); It++) {
                 int word_id = addWord((*It).first);
+#ifdef DEBUG_PRINT_DATA
                 std::cout << (*It).first << std::endl;
                 std::cout << word_id;
+#endif // DEBUG_PRINT_DATA
                 if (word_id < 0) {
                     throw std::exception("Received incorrect word id");
                     return;

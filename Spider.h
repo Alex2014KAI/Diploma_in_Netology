@@ -24,10 +24,8 @@ namespace SPIDER
 	class Spider
 	{
 	public:
-		Spider(const std::string& setupDB, const std::string& startPage, int depthRecursion): 
-			indexer_(setupDB, depthRecursion), startPage_(startPage), depthRecursion_(depthRecursion){};
-		// bool execute(const std::string& host);
-		void execute();
+		Spider(const std::string& setupDB, int maxRecursionLevel) :
+			indexer_(setupDB, maxRecursionLevel) {};
 		void execute(const Link link);
 		std::vector<std::string> getLinksOnTheCurrentSiteSpider();
 		std::vector<Link> getLinksOnTheCurrentSiteSpider_Link();
@@ -35,10 +33,6 @@ namespace SPIDER
 	private:
 
 		Indexer indexer_;
-		//HTTPClientSinc hTTPClient_;
-
-		std::string startPage_;
-		int  depthRecursion_;
 	};
 }
 

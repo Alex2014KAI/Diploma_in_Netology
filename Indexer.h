@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_set>
+#include <string>
 
 #include "Database.h"
 
@@ -104,6 +105,8 @@ namespace SPIDER
 		void wordFrequencyAnalysisText();
 		void saveDataDatabase();
 		void setData(); // Create a table and describe the method for storing data
+
+		bool urlIsNotImage(const std::string& line);
 	};
 
 
