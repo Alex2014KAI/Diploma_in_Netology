@@ -157,10 +157,17 @@ int main()
 
 
 #ifndef OLD_DEBUG
+
+        //DELETE
+        SPIDER::BDSetup bdSetup("ini.txt");
+
+        SPIDER::Database db(bdSetup.dataSetup_);
+        db.deleteTables();
+        // DELETE
         // *******************Working code of the program*****************
         //****************************************************************
 
-        SPIDER::SpiderSetup setupData("ini.txt");
+        SPIDER::SpiderSetup setupData("ini.txt"); // https://httpbin.org/  http://lib.ru/
         SPIDER::Link startLink(setupData.startPage_, 1);
 
         SPIDER::Thread_pool thread_pool_;

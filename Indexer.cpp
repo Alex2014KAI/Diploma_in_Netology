@@ -24,15 +24,18 @@ namespace SPIDER
         while (std::getline(file, line)) { 
             originPageHTML_ += cleaningHTMLTags_.execute(line) + " ";
 
-            // if (urlIsNotImage(line)) continue;   // if the link is to a picture
             std::string debugURL = cleaningHTMLTags_.getURL(line);
             if (debugURL.size() != 0) {
                 if (debugURL == url_) continue; // Here is a link to the same site
-           
+                if (urlIsNotImage(debugURL)) continue; // if the link is to a picture
+
                 if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
                     debugURL.insert(0, "http://" + url_ + "/");
                 }
                 linksOnTheCurrentSite.push_back(debugURL); // to work with links
+#ifdef MAX_NUMBER_OF_LINKS_ON_ONE_PAGE
+                if (linksOnTheCurrentSiteLink.size() >= MAX_NUMBER_OF_LINKS_ON_ONE_PAGE) return;
+#endif // MAX_NUMBER_OF_LINKS_ON_ONE_PAGE
             }
         };
 
@@ -47,14 +50,27 @@ namespace SPIDER
         while (std::getline(file, line)) {
             originPageHTML_ += cleaningHTMLTags_.execute(line) + " ";
 
-            // if (urlIsNotImage(line)) continue;   // if the link is to a picture
+#ifdef MAX_NUMBER_OF_LINKS_ON_ONE_PAGE
+            if (linksOnTheCurrentSiteLink.size() >= MAX_NUMBER_OF_LINKS_ON_ONE_PAGE) continue;
+#endif // MAX_NUMBER_OF_LINKS_ON_ONE_PAGE
+
             std::string debugURL = cleaningHTMLTags_.getURL(line);
             if (debugURL.size() != 0) {
-                if (debugURL == url_) continue; // Here is a link to the same site
-                // Проверка на то что ссылка не на картинку
+                if (debugURL == url_) { 
+                    continue; }; // Here is a link to the same site
+                if (urlIsNotImage(debugURL)) continue; // if the link is to a picture
+
                 if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
-                    debugURL.insert(0, "http://" + url_ + "/");
+                    continue; // Origin
+                    // debugURL.insert(0, url_);  // Origin
                 }
+
+                if (database_.checkingForURLExistence(debugURL)) {
+                    std::cout << "The site: " << debugURL <<  " has already been added to the database, it will not be placed in the vector." << std::endl;
+                    continue;
+                };
+
+                std::cout << "                               Анализируемый сайт" << url_ << " добавил " << debugURL << " в вектор" << std::endl;
                 linksOnTheCurrentSiteLink.push_back(Link(debugURL, currentLink.currentRecursionLevel_++)); // to work with links
             }
         };
@@ -106,25 +122,24 @@ namespace SPIDER
         std::cout << "DATA SAVED" << std::endl;
 #endif // DEBUG_PRINT_DATA
     }
-
+    
     bool Indexer::urlIsNotImage(const std::string& line)
     {
-        std::regex link_regex(R"(<a\s+[^>]*href=["']([^"']+)["'][^>]*>.*?</a>)", std::regex::icase);
-        
-        std::regex img_ext_regex(R"(\.(jpg|jpeg|png|gif|bmp|svg)$)", std::regex::icase);
+        const std::string extensions[] = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".svg", ".htm", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", };
 
-        auto begin = std::sregex_iterator(line.begin(), line.end(), link_regex);
-        auto end = std::sregex_iterator();
+        // преобразуем строку к нижнему регистру для сравнения
+        std::string lowerUrl = line;
+        std::transform(lowerUrl.begin(), lowerUrl.end(), lowerUrl.begin(), ::tolower);
 
-        for (auto it = begin; it != end; ++it) {
-            std::smatch match = *it;
-            std::string href = match[1].str();
-
-            if (!std::regex_search(href, img_ext_regex)) {
-                return false;
+        // ищем расширение в конце строки
+        for (const auto& ext : extensions) {
+            if (lowerUrl.size() >= ext.size()) {
+                if (lowerUrl.compare(lowerUrl.size() - ext.size(), ext.size(), ext) == 0) {
+                    return true;
+                }
             }
         }
-        return true;
+        return false;
     }
 
 
@@ -133,10 +148,12 @@ namespace SPIDER
         // html_ = html;
         url_ = URL;
         
+        /*
         if (database_.checkingForURLExistence(url_)) {
             std::cout << "The URL is in the database, but the page is not processed." << std::endl;
             return;
         };
+        */
         
         pageRequestHTML(html);
         convertWordsLowerCase();

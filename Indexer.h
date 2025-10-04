@@ -10,6 +10,7 @@
 #include <string>
 
 #include "Database.h"
+#include "globals.h"
 
 namespace SPIDER
 {
@@ -32,8 +33,10 @@ namespace SPIDER
 				host_ = url.substr(host_start, path_start - host_start);
 				target_ = url.substr(path_start);
 			}
+#ifdef DEBUG_PRINT_DATA
 			std::cout << "Host: " << host_ << std::endl;
 			std::cout << "Target: " << target_ << std::endl;
+#endif // DEBUG_PRINT_DATA
 		}
 	};
 
