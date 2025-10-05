@@ -74,7 +74,7 @@ namespace SPIDER
         };
 
         void submit(Link link) {
-            if (link.currentRecursionLevel_ == maxRecursionLevel) return;
+            if (link.currentRecursionLevel_ > maxRecursionLevel) return;
             std::cout << "Добавлен сайт:  " << link.url_ << std::endl;
             queueURL.push(link);
         };

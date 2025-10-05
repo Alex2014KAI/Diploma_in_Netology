@@ -155,7 +155,7 @@ int main()
         try {
             SPIDER::HttpsClient client;
             std::string html;
-            client.get("https://httpbin.org/", html);
+            html = client.get("https://httpbin.org/");
             std::cout << html << std::endl;
         }
         catch (const std::exception& ex) {
@@ -180,7 +180,7 @@ int main()
         // *******************Working code of the program*****************
         //****************************************************************
 
-        SPIDER::SpiderSetup setupData("ini.txt"); // https://httpbin.org/  http://lib.ru/
+        SPIDER::SpiderSetup setupData("ini.txt");
         SPIDER::Link startLink(setupData.startPage_, 1);
 
         SPIDER::Thread_pool thread_pool_;

@@ -3,6 +3,6 @@ port=5432
 dbname=postgres 
 user=postgres
 password=738109lexa
-http://lib.ru/
+https://httpbin.org/
 2
 port for running the search program

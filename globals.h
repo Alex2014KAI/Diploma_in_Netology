@@ -1,7 +1,7 @@
 #pragma once
 // globals.h
 
-#define OLD_DEBUG
+//#define OLD_DEBUG
 //#define DEBUG_INDEXER
 //#define DEBUG_LINK
 //#define DEBUG_DATABASE

@@ -27,10 +27,12 @@ namespace SPIDER
 
 	void Spider::execute(const Link link)
 	{
+		/*
 		HTTPClientSinc hTTPClient_(link.host_);
 		std::string target = link.target_;
 		std::string response_body;
 		std::string error;
+		
 		if (hTTPClient_.get(target, response_body, error))
 		{
 #ifdef DEBUG_PRINT_DATA
@@ -44,7 +46,14 @@ namespace SPIDER
 		{
 			std::cerr << "Request failed: " << error << std::endl;
 		}
+		
+		*/
 
+		HttpsClient httpsClient_;
+		std::string response_body;
+		response_body = httpsClient_.get(link.url_);
+		//std::cout << "Response body:\n" << response_body << std::endl;
+		indexer_.execute(link, response_body);
 		return;
 	}
 

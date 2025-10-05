@@ -61,8 +61,8 @@ namespace SPIDER
                 if (urlIsNotImage(debugURL)) continue; // if the link is to a picture
 
                 if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
-                    continue; // Origin
-                    // debugURL.insert(0, url_);  // Origin
+                    //continue; // Origin
+                    debugURL.insert(0, url_);  // Origin
                 }
 
                 if (database_.checkingForURLExistence(debugURL)) {
@@ -70,8 +70,10 @@ namespace SPIDER
                     continue;
                 };
 
-                std::cout << "                               Анализируемый сайт" << url_ << " добавил " << debugURL << " в вектор" << std::endl;
-                linksOnTheCurrentSiteLink.push_back(Link(debugURL, currentLink.currentRecursionLevel_++)); // to work with links
+                int recursionLevelDebugURL = currentLink.currentRecursionLevel_ + 1;
+                std::cout << "             Анализируемый сайт" << url_ << " добавил " << debugURL << " в вектор." << " Рекурсия добавленного сайта: " << recursionLevelDebugURL << std::endl;
+
+                linksOnTheCurrentSiteLink.push_back(Link(debugURL, recursionLevelDebugURL)); // to work with links
             }
         };
     }
@@ -125,7 +127,7 @@ namespace SPIDER
     
     bool Indexer::urlIsNotImage(const std::string& line)
     {
-        const std::string extensions[] = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".svg", ".htm", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", };
+        const std::string extensions[] = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".svg", ".htm", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".css", ".ico", "httpbin"};
 
         // преобразуем строку к нижнему регистру для сравнения
         std::string lowerUrl = line;
