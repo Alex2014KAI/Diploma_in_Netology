@@ -151,6 +151,19 @@ int main()
     //}
 #endif // DEBUG_THREAD_POOL
 
+#ifdef DEBUG_HTTPS_CLIENT
+        try {
+            SPIDER::HttpsClient client;
+            std::string html;
+            client.get("https://httpbin.org/", html);
+            std::cout << html << std::endl;
+        }
+        catch (const std::exception& ex) {
+            std::cerr << "Ошибка: " << ex.what() << std::endl;
+        }
+        return 0;
+#endif // DEBUG_HTTPS_CLIENT
+
 
 #endif // OLD_DEBUG 
 

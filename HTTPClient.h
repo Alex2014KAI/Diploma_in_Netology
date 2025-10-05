@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 
+#include <curl/curl.h>
 
 namespace beast = boost::beast;     // from <boost/beast.hpp>
 namespace http = beast::http;       // from <boost/beast/http.hpp>
@@ -34,30 +35,61 @@ namespace SPIDER
 
 	};
 
-	/*
-	class HTTPClient : public std::enable_shared_from_this<HTTPClient> {
-	public:
-		HTTPClient(net::io_context& ioc, const std::string& host, const std::string& target, int version = 11)
-			: resolver_(ioc), stream_(ioc), host_(host), target_(target), http_version_(version) {};
-		void run();
+    class HttpsClient {
+    public:
+        HttpsClient() {
+            curl_global_init(CURL_GLOBAL_DEFAULT);
+            curl = curl_easy_init();
+        }
+        ~HttpsClient() {
+            if (curl) {
+                curl_easy_cleanup(curl);
+            }
+            curl_global_cleanup();
+        }
 
-	private:
-		tcp::resolver resolver_;
-		beast::tcp_stream stream_;
-		beast::flat_buffer buffer_; // Буфер для чтения
-		http::request<http::empty_body> req_;
-		http::response<http::string_body> res_;
+        // Метод для получения HTML страницы по URL
+        void get(const std::string& url, std::string& response) {
+            if (!curl) {
+                throw std::runtime_error("Failed to initialize curl");
+            }
 
-		std::string host_;
-		std::string target_;
-		int http_version_;
+            //std::string response_;
 
-		void on_resolve(beast::error_code ec, tcp::resolver::results_type results);
-		void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type);
-		void on_write(beast::error_code ec, std::size_t bytes_transferred);
-		void on_read(beast::error_code ec, std::size_t bytes_transferred);
-		void fail(beast::error_code ec, char const* what);
-	};
-	*/
+            // Установка URL
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+            // Включение HTTPS
+            curl_easy_setopt(curl, CURLOPT_USE_SSL, CURLUSESSL_ALL);
+
+            // Обработчик для получения данных
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+            // (Опционально) проверить SSL-сертификат
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
+
+            // Выполнение запроса
+            CURLcode res = curl_easy_perform(curl);
+            if (res != CURLE_OK) {
+                throw std::runtime_error(curl_easy_strerror(res));
+            }
+
+            // return response;
+            return;
+        }
+
+    private:
+        CURL* curl;
+
+        // Статическая функция-обработчик для записи полученных данных
+        static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+            size_t totalSize = size * nmemb;
+            output->append((char*)contents, totalSize);
+            return totalSize;
+        }
+    };
+
 }
 
