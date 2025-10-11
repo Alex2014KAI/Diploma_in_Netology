@@ -7,12 +7,16 @@
 #include "Thread_pool.h"
 #include "globals.h"
 
+#include "HttpServer.h"
+
 #include <boost/locale.hpp>
 
 #include <windows.h>
 #include <string>
 #include <io.h>
 #include <fcntl.h>
+
+#include <memory>
 
 
 
@@ -164,8 +168,29 @@ int main()
         return 0;
 #endif // DEBUG_HTTPS_CLIENT
 
+#ifdef DEBUG_HTTP_SERVER
+        
+       try {
+            boost::asio::io_context io_context;
 
+            tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 8080));
+            std::cout << "Сервер запущен на порту 8080" << std::endl;
+
+            while (true) {
+                tcp::socket socket(io_context);
+                acceptor.accept(socket);
+                SPIDER::handle_client_http_(socket);
+            }
+        }
+        catch (std::exception& e) {
+            std::cerr << "Исключение: " << e.what() << std::endl;
+        }
+        return 0;
+
+#endif // DEBUG_HTTP_SERVER
+        
 #endif // OLD_DEBUG 
+
 
 
 
@@ -180,11 +205,13 @@ int main()
         // *******************Working code of the program*****************
         //****************************************************************
 
-        SPIDER::SpiderSetup setupData("ini.txt");
+        SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/
         SPIDER::Link startLink(setupData.startPage_, 1);
 
         SPIDER::Thread_pool thread_pool_;
         thread_pool_.submit(startLink);
+
+
 
 #endif // !OLD_DEBUG
 

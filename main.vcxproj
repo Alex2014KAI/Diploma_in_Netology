@@ -127,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="HTTPClient.cpp" />
+    <ClCompile Include="HttpServer.cpp" />
     <ClCompile Include="Indexer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Spider.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="Database.h" />
     <ClInclude Include="globals.h" />
     <ClInclude Include="HTTPClient.h" />
+    <ClInclude Include="HttpServer.h" />
     <ClInclude Include="Indexer.h" />
     <ClInclude Include="Spider.h" />
     <ClInclude Include="Thread_pool.h" />

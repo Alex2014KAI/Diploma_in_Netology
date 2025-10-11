@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Программа "Паук"</title>
+</head>
+<body>
+<h1 style="text-align: center;">Введите слово или сочетание слов для поиска. Внимание максимальное количесвто слов 3, в случае если вы введете больше будут искаться только первые три слова</h1>
+<form id="wordForm">
+    <label for="wordInput">Введите слово или сочетание слов и нажмите кнопку отправить:</label>
+    <input type="text" id="wordInput" name="word" required />
+    <button type="submit">Отправить</button>
+</form>
+
+<div id="result" style="margin-top:20px; padding:10px; border:1px solid #ccc;">
+    <h2>Ответ сервера</h2>
+</div>
+
+<script>
+document.getElementById('wordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const word = document.getElementById('wordInput').value;
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://localhost:8080/', true);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            document.getElementById('result').innerHTML = xhr.responseText;
+        } else {
+            document.getElementById('result').innerHTML = '<p style="color:red;">Ошибка: ' + xhr.status + '</p>';
+        }
+    };
+
+    xhr.send('word=' + encodeURIComponent(word));
+});
+</script>
+</body>
+</html>

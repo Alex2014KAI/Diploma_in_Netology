@@ -53,6 +53,7 @@ namespace SPIDER
 		std::string response_body;
 		response_body = httpsClient_.get(link.url_);
 		//std::cout << "Response body:\n" << response_body << std::endl;
+		std::cout << "Loading...." << std::endl;
 		indexer_.execute(link, response_body);
 		return;
 	}

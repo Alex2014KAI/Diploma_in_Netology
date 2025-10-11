@@ -10,6 +10,7 @@
 
 #include <curl/curl.h>
 
+/*
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <openssl/ssl.h>
@@ -19,6 +20,8 @@
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "libssl.lib")
 #pragma comment(lib, "libcrypto.lib")
+*/
+
 
 namespace beast = boost::beast;     // from <boost/beast.hpp>
 namespace http = beast::http;       // from <boost/beast/http.hpp>

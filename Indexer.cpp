@@ -114,6 +114,7 @@ namespace SPIDER
 #endif // DEBUG_PRINT_DATA
 
         setData();
+        std::cout << "Сайт " << url_ << " полностью проанализирован" << std::endl;
     }
 
     void Indexer::setData()
