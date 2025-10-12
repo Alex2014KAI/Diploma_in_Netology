@@ -19,6 +19,9 @@ namespace SPIDER
 		std::string debugDepthRecursion;
 		std::getline(file, debugDepthRecursion);
 		depthRecursion_ = std::stoi(debugDepthRecursion);
+		std::string debugPortServer;
+		std::getline(file, debugPortServer);
+		portServer_ = std::stoi(debugPortServer);
 		file.close();
 		dataSetupBD_ = host_ + " " + port_ + " " + dbname_ + " " + user_ + " " + password_;
 	}

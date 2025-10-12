@@ -10,6 +10,7 @@ namespace SPIDER
 		std::string dataSetupBD_;
 		std::string startPage_;
 		int  depthRecursion_;
+		int portServer_;
 
 	private:
 		std::string host_;

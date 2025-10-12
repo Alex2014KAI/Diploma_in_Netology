@@ -1,7 +1,7 @@
 #pragma once
 // globals.h
 
-#define OLD_DEBUG
+//#define OLD_DEBUG
 //#define DEBUG_INDEXER
 //#define DEBUG_LINK
 //#define DEBUG_DATABASE
@@ -10,8 +10,10 @@
 //#define DEBUG_SPIDER
 //#define DEBUG_THREAD_POOL
 //#define DEBUG_HTTPS_CLIENT
-#define DEBUG_HTTP_SERVER
+//#define DEBUG_HTTP_SERVER
+//#define DEBUG_WORD_SEARCH_ENGINE_DATA_BASE
 
 //#define DEBUG_PRINT_DATA
 
 #define MAX_NUMBER_OF_LINKS_ON_ONE_PAGE 2
+#define MAX_NUMBER_OF_WORDS_TO_SEARCH_IN_THE_DATABASE 3

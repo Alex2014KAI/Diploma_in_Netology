@@ -8,6 +8,7 @@
 #include "globals.h"
 
 #include "HttpServer.h"
+#include "WordSearchEngineDatabase.h"
 
 #include <boost/locale.hpp>
 
@@ -171,10 +172,11 @@ int main()
 #ifdef DEBUG_HTTP_SERVER
         
        try {
+           SPIDER::SpiderSetup spiderSetup("ini.txt");
             boost::asio::io_context io_context;
 
-            tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 8080));
-            std::cout << "Сервер запущен на порту 8080" << std::endl;
+            tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), spiderSetup.portServer_));
+            std::cout << "Сервер запущен на порту " << spiderSetup.portServer_ << std::endl;
 
             while (true) {
                 tcp::socket socket(io_context);
@@ -188,7 +190,27 @@ int main()
         return 0;
 
 #endif // DEBUG_HTTP_SERVER
+
+#ifdef DEBUG_WORD_SEARCH_ENGINE_DATA_BASE
+        SPIDER::SpiderSetup spiderSetup("ini.txt");
+
+        SPIDER::WordSearchEngineDatabase db(spiderSetup.dataSetupBD_);
+
+        std::vector<std::string> query_words = { "server" };
+
+        auto docs = db.getDocumentsByWords(query_words);
+
+        for (const auto& doc : docs) {
+            std::cout << "Document ID: " << doc.document_id
+                << ", URL: " << doc.url
+                << ", Relevance: " << doc.total_frequency << std::endl;
+        }
+
+        return 0;
+
+#endif // DEBUG_WORD_SEARCH_ENGINE_DATA_BASE
         
+
 #endif // OLD_DEBUG 
 
 
@@ -204,15 +226,31 @@ int main()
         // DELETE
         // *******************Working code of the program*****************
         //****************************************************************
-
+        try {
         SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/
         SPIDER::Link startLink(setupData.startPage_, 1);
 
         SPIDER::Thread_pool thread_pool_;
         thread_pool_.submit(startLink);
 
+        
+        std::this_thread::sleep_for(40s);
 
+        boost::asio::io_context io_context;
+        tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), setupData.portServer_));
+        std::cout << "Сервер запущен на порту " << setupData.portServer_ << std::endl;
 
+        while (true) {
+            tcp::socket socket(io_context);
+            acceptor.accept(socket);
+            SPIDER::handle_client_http_(socket);
+            }
+        }
+        catch (std::exception& e) {
+            std::cerr << "Исключение: " << e.what() << std::endl;
+        }
+
+        return 0;
 #endif // !OLD_DEBUG
 
 }

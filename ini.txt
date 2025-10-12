@@ -5,4 +5,4 @@ user=postgres
 password=738109lexa
 https://httpbin.org/
 3
-port for running the search program
+8080
