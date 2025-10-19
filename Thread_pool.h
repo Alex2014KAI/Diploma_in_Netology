@@ -15,13 +15,17 @@ using namespace std;
 
 namespace SPIDER
 {
+    
     template <typename T>
     class safe_queue {
     public:
         void push(T fn) {
-            lock_guard<mutex> lg(mt); // We grab a mutex so that no one else can add a function to the thread.
-            queue_.push(std::move(fn));
-            cv.notify_all();
+            {
+                lock_guard<mutex> lg(mt); // We grab a mutex so that no one else can add a function to the thread.
+                queue_.push(std::move(fn));
+            }
+            //cv.notify_all();
+            cv.notify_one();
         }
 
         T pop() {
@@ -42,13 +46,14 @@ namespace SPIDER
         Thread_pool(): spiderSetup("ini.txt") {
             numberThreads = _Thrd_hardware_concurrency();
             maxRecursionLevel = spiderSetup.depthRecursion_;
-            for (int i{ 0 }; i < (numberThreads - 3); i++) {
-                vectorThread.push_back(thread(&Thread_pool::work, this));
+            for (int i{ 0 }; i < (numberThreads - 4); i++) {
+                // vectorThread.push_back(thread(&Thread_pool::work, this));
+                vectorThread.emplace_back(&Thread_pool::work, this);
             }
         };
 
         ~Thread_pool() {
-            for (int i{ 0 }; i < (numberThreads - 3); i++) {
+            for (int i{ 0 }; i < (numberThreads - 4); i++) {
                 vectorThread[i].join();
             }
         };
@@ -56,17 +61,20 @@ namespace SPIDER
         void work() {
             while (true) {
                 Link link = queueURL.pop();
-                cout << "Сайт " << link.url_ << " анализируется потоком:" << this_thread::get_id() << endl;
+                // cout << "Сайт " << link.url_ << " анализируется потоком:" << this_thread::get_id() << endl;
                 
                 Spider spider(spiderSetup.dataSetupBD_, maxRecursionLevel);
+
                 spider.execute(link);
 
                 std::vector<Link> currentLinkPage = spider.getLinksOnTheCurrentSiteSpider_Link();
+                
                 link_Table.insert(link_Table.end(), currentLinkPage.begin(), currentLinkPage.end());      
-
+                
                 while (!link_Table.empty()) {
                     Link link = link_Table.front();
                     link_Table.erase(link_Table.begin());
+                    std::cout << "                                     число сайтов в векторе ссылок " << link_Table.size() << std::endl;
                     submit(link);
                 }
 
@@ -75,7 +83,7 @@ namespace SPIDER
 
         void submit(Link link) {
             if (link.currentRecursionLevel_ > maxRecursionLevel) return;
-            std::cout << "Добавлен сайт:  " << link.url_ << std::endl;
+            // std::cout << "Добавлен сайт:  " << link.url_ << std::endl;
             queueURL.push(link);
         };
 
@@ -90,4 +98,6 @@ namespace SPIDER
         mutex mt1;
         int maxRecursionLevel;
     };
+    
+
 }

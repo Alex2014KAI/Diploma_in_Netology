@@ -2,6 +2,7 @@
 
 namespace SPIDER
 {
+    /*
     bool HTTPClientSinc::get(const std::string& target, std::string& out_body, std::string& out_error)
     {
         try
@@ -46,73 +47,6 @@ namespace SPIDER
             out_error = e.what();
             return false;
         }
-    }
-
-    /*
-    void HTTPClient::run() {
-        // Запускаем асинхронное разрешение DNS
-        resolver_.async_resolve(host_, "80",
-            beast::bind_front_handler(&HTTPClient::on_resolve, shared_from_this()));
-    }
-    void HTTPClient::on_resolve(beast::error_code ec, tcp::resolver::results_type results)
-    {
-        if (ec)
-            return fail(ec, "resolve");
-
-        // Устанавливаем соединение
-        stream_.async_connect(results,
-            beast::bind_front_handler(&HTTPClient::on_connect, shared_from_this()));
-    }
-
-    void HTTPClient::on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type)
-    {
-        if (ec)
-            return fail(ec, "connect");
-
-        // Формируем HTTP GET запрос
-        req_.version(http_version_);
-        req_.method(http::verb::get);
-        req_.target(target_);
-        req_.set(http::field::host, host_);
-        req_.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-
-        // Отправляем запрос
-        http::async_write(stream_, req_,
-            beast::bind_front_handler(&HTTPClient::on_write, shared_from_this()));
-    }
-
-    void HTTPClient::on_write(beast::error_code ec, std::size_t bytes_transferred)
-    {
-        boost::ignore_unused(bytes_transferred);
-
-        if (ec)
-            return fail(ec, "write");
-
-        // Получаем ответ
-        http::async_read(stream_, buffer_, res_,
-            beast::bind_front_handler(&HTTPClient::on_read, shared_from_this()));
-    }
-
-    void HTTPClient::on_read(beast::error_code ec, std::size_t bytes_transferred)
-    {
-        boost::ignore_unused(bytes_transferred);
-
-        if (ec)
-            return fail(ec, "read");
-
-        // Выводим тело ответа
-        std::cout << res_.body() << std::endl;
-
-        // Закрываем соединение
-        stream_.socket().shutdown(tcp::socket::shutdown_both, ec);
-
-        if (ec && ec != beast::errc::not_connected)
-            return fail(ec, "shutdown");
-    }
-
-    void HTTPClient::fail(beast::error_code ec, char const* what)
-    {
-        std::cerr << what << ": " << ec.message() << "\n";
     }
     */
 

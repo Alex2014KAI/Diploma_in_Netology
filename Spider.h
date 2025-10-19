@@ -2,6 +2,7 @@
 #include "Indexer.h"
 #include "Database.h"
 #include "HTTPClient.h"
+#include <thread>
 
 namespace SPIDER
 {

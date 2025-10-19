@@ -60,18 +60,17 @@ namespace SPIDER
                     continue; }; // Here is a link to the same site
                 if (urlIsNotImage(debugURL)) continue; // if the link is to a picture
 
-                if (debugURL.find("http://") != 0) { // if the initial host is the same as the current site
-                    //continue; // Origin
-                    debugURL.insert(0, url_);  // Origin
+                if (debugURL.find("https://") != 0) { // if the initial host is the same as the current site
+                    debugURL.insert(0, "https://" + currentLink.host_);  // Origin
                 }
 
                 if (database_.checkingForURLExistence(debugURL)) {
-                    std::cout << "The site: " << debugURL <<  " has already been added to the database, it will not be placed in the vector." << std::endl;
+                    // std::cout << "The site: " << debugURL <<  " has already been added to the database, it will not be placed in the vector." << std::endl;
                     continue;
                 };
 
                 int recursionLevelDebugURL = currentLink.currentRecursionLevel_ + 1;
-                std::cout << "             Анализируемый сайт" << url_ << " добавил " << debugURL << " в вектор." << " Рекурсия добавленного сайта: " << recursionLevelDebugURL << std::endl;
+                // std::cout << "             Анализируемый сайт" << url_ << " добавил " << debugURL << " в вектор." << " Рекурсия добавленного сайта: " << recursionLevelDebugURL << std::endl;
 
                 linksOnTheCurrentSiteLink.push_back(Link(debugURL, recursionLevelDebugURL)); // to work with links
             }
@@ -114,7 +113,7 @@ namespace SPIDER
 #endif // DEBUG_PRINT_DATA
 
         setData();
-        std::cout << "Сайт " << url_ << " полностью проанализирован" << std::endl;
+        // std::cout << "Сайт " << url_ << " полностью проанализирован" << std::endl;
     }
 
     void Indexer::setData()
@@ -166,12 +165,12 @@ namespace SPIDER
 
     void Indexer::execute(const Link& link, const std::string& html)
     {
-        if (link.currentRecursionLevel_ == maxRecursionLevel_) return;
+        if (link.currentRecursionLevel_ == maxRecursionLevel_ + 1) return;
         currentLink = link;
         url_ = link.url_;
         
         if (database_.checkingForURLExistence(url_)) {
-            std::cout << "The URL is in the database, but the page is not processed." << std::endl;
+            // std::cout << "The URL is in the database, but the page is not processed." << std::endl;
             return;
         };
 

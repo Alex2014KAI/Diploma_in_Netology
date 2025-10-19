@@ -210,6 +210,15 @@ int main()
 
 #endif // DEBUG_WORD_SEARCH_ENGINE_DATA_BASE
         
+#ifdef DEBUG_GET_URL
+        SPIDER::CleaningHTMLTags debugGet;
+        std::string debugHTML1 = "<a href =  #Working_with_EVP_PKEYs ><span class = tocnumber>1< / span> <span class = toctext >Working with EVP_PKEYs< / span>< / a>< / li>";
+        std::string debugHTML2 = "<link rel = shortcut icon href = /favicon.ico/ >";
+
+        std::cout << debugGet.getURL(debugHTML1);
+        std::cout << debugGet.getURL(debugHTML2);
+#endif // DEBUG_GET_URL
+
 
 #endif // OLD_DEBUG 
 
@@ -223,18 +232,19 @@ int main()
 
         SPIDER::Database db(bdSetup.dataSetup_);
         db.deleteTables();
+        std::this_thread::sleep_for(1s);
         // DELETE
         // *******************Working code of the program*****************
         //****************************************************************
         try {
-        SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/
+        SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/ https://wiki.openssl.org
         SPIDER::Link startLink(setupData.startPage_, 1);
 
         SPIDER::Thread_pool thread_pool_;
         thread_pool_.submit(startLink);
 
         
-        std::this_thread::sleep_for(40s);
+        // std::this_thread::sleep_for(40s);
 
         boost::asio::io_context io_context;
         tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), setupData.portServer_));
@@ -252,5 +262,5 @@ int main()
 
         return 0;
 #endif // !OLD_DEBUG
-
+        
 }

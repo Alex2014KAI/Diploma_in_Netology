@@ -1,5 +1,26 @@
 #include "Spider.h"
 
+#include <iostream>
+#include "Indexer.h"
+#include "Database.h"
+#include "HTTPClient.h"
+#include "Spider.h"
+
+#include "Thread_pool.h"
+#include "globals.h"
+
+#include "HttpServer.h"
+#include "WordSearchEngineDatabase.h"
+
+#include <boost/locale.hpp>
+
+#include <windows.h>
+#include <string>
+#include <io.h>
+#include <fcntl.h>
+
+#include <memory>
+
 namespace SPIDER
 {
 	SpiderSetup::SpiderSetup(const std::string& iniFile)
@@ -55,7 +76,7 @@ namespace SPIDER
 		HttpsClient httpsClient_;
 		std::string response_body;
 		response_body = httpsClient_.get(link.url_);
-		//std::cout << "Response body:\n" << response_body << std::endl;
+		// std::cout << "Response body:\n" << response_body << std::endl;
 		std::cout << "Loading...." << std::endl;
 		indexer_.execute(link, response_body);
 		return;

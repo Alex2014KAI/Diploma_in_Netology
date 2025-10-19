@@ -19,6 +19,7 @@ namespace SPIDER
 		std::string host_;
 		std::string target_;
 		int currentRecursionLevel_;
+		Link() {};
 		Link(std::string url, int currentRecursionLevel): url_(url), currentRecursionLevel_(currentRecursionLevel){
 			size_t scheme_end = url_.find("://");
 			size_t host_start = (scheme_end == std::string::npos) ? 0 : scheme_end + 3;
