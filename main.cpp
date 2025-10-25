@@ -21,7 +21,6 @@
 
 
 
-
 int main()
 {
 
@@ -232,28 +231,32 @@ int main()
 
         SPIDER::Database db(bdSetup.dataSetup_);
         db.deleteTables();
-        std::this_thread::sleep_for(1s);
+        // std::this_thread::sleep_for(1s);
         // DELETE
-        // *******************Working code of the program*****************
-        //****************************************************************
+#ifdef DEBUG_TRHEDPULL
         try {
-        SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/ https://wiki.openssl.org
-        SPIDER::Link startLink(setupData.startPage_, 1);
+            SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/ https://wiki.openssl.org
+            SPIDER::Link startLink(setupData.startPage_, 1);
 
-        SPIDER::Thread_pool thread_pool_;
-        thread_pool_.submit(startLink);
+            SPIDER::Thread_pool thread_pool_;
+            thread_pool_.submit(startLink);
 
-        
-        // std::this_thread::sleep_for(40s);
+            std::this_thread::sleep_for(10s);
+            while (!thread_pool_.link_Table.empty()) { // в условии должен быть флаг о том, что какой то из потоков свободен .... Или вынести while в main что бы не зависал поток
+                //while (!queueURL.empty()) {
 
-        boost::asio::io_context io_context;
-        tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), setupData.portServer_));
-        std::cout << "Сервер запущен на порту " << setupData.portServer_ << std::endl;
+                std::lock_guard<std::mutex> lock(thread_pool_.mutex_iteration);
+                if (thread_pool_.active_threads.load() < thread_pool_.numberThreads) {
+                    std::cout << "*********" << thread_pool_.active_threads.load() << "********" << std::endl;
+                    SPIDER::Link link = thread_pool_.link_Table.front();
+                    thread_pool_.link_Table.erase(thread_pool_.link_Table.begin());
+                    std::cout << "                                     число сайтов в векторе ссылок " << thread_pool_.link_Table.size() << std::endl;
+                    //std::this_thread::sleep_for(0.1s);
+                    // if (link_Table.size() < numberThreads) submit(link);
+                    thread_pool_.submit(link);
+                    // break;
+                }
 
-        while (true) {
-            tcp::socket socket(io_context);
-            acceptor.accept(socket);
-            SPIDER::handle_client_http_(socket);
             }
         }
         catch (std::exception& e) {
@@ -261,6 +264,39 @@ int main()
         }
 
         return 0;
-#endif // !OLD_DEBUG
+#endif // DEBUG_TRHEDPULL
+
+#ifndef DEBUG_TRHEDPULL
+
+// *******************Working code of the program*****************
+//****************************************************************
+        try {
+            SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/ https://wiki.openssl.org
+            SPIDER::Link startLink(setupData.startPage_, 1);
+
+            SPIDER::Thread_pool thread_pool_;
+            thread_pool_.submit(startLink);
+
+            // std::this_thread::sleep_for(40s);
+
+            boost::asio::io_context io_context;
+            tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), setupData.portServer_));
+            std::cout << "Сервер запущен на порту " << setupData.portServer_ << std::endl;
+
+            while (true) {
+                tcp::socket socket(io_context);
+                acceptor.accept(socket);
+                SPIDER::handle_client_http_(socket);
+            }
+        }
+        catch (std::exception& e) {
+            std::cerr << "Исключение: " << e.what() << std::endl;
+            std::cout << "RETURN ERROR" << std::endl;
+        }
+
+        return 0;
+#endif // !DEBUG_TRHEDPULL
+
         
+#endif // !OLD_DEBUG
 }

@@ -113,7 +113,7 @@ namespace SPIDER
 #endif // DEBUG_PRINT_DATA
 
         setData();
-        // std::cout << "Сайт " << url_ << " полностью проанализирован" << std::endl;
+        std::cout << "Сайт " << url_ << " полностью проанализирован" << std::endl;
     }
 
     void Indexer::setData()
@@ -174,10 +174,16 @@ namespace SPIDER
             return;
         };
 
-        pageRequestHTML_Links(html);
-        convertWordsLowerCase();
-        wordFrequencyAnalysisText();
-        saveDataDatabase();
+        try {
+            pageRequestHTML_Links(html);
+            convertWordsLowerCase();
+            wordFrequencyAnalysisText();
+            saveDataDatabase();
+        }
+        catch (std::exception& e) {
+            std::cerr << "Исключение: " << e.what() << std::endl;
+        }
+        
     }
 
     std::vector<std::string> Indexer::getLinksOnTheCurrentSite()
