@@ -226,52 +226,16 @@ int main()
 
 #ifndef OLD_DEBUG
 
-        //DELETE
-        SPIDER::BDSetup bdSetup("ini.txt");
+        std::string nameINIFile = "ini.txt"; // Измените путь к ini файлу только тут
 
+        SPIDER::BDSetup bdSetup(nameINIFile);
         SPIDER::Database db(bdSetup.dataSetup_);
         db.deleteTables();
-        // std::this_thread::sleep_for(1s);
-        // DELETE
-#ifdef DEBUG_TRHEDPULL
-        try {
-            SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/ https://wiki.openssl.org
-            SPIDER::Link startLink(setupData.startPage_, 1);
-
-            SPIDER::Thread_pool thread_pool_;
-            thread_pool_.submit(startLink);
-
-            std::this_thread::sleep_for(10s);
-            while (!thread_pool_.link_Table.empty()) { // в условии должен быть флаг о том, что какой то из потоков свободен .... Или вынести while в main что бы не зависал поток
-                //while (!queueURL.empty()) {
-
-                std::lock_guard<std::mutex> lock(thread_pool_.mutex_iteration);
-                if (thread_pool_.active_threads.load() < thread_pool_.numberThreads) {
-                    std::cout << "*********" << thread_pool_.active_threads.load() << "********" << std::endl;
-                    SPIDER::Link link = thread_pool_.link_Table.front();
-                    thread_pool_.link_Table.erase(thread_pool_.link_Table.begin());
-                    std::cout << "                                     число сайтов в векторе ссылок " << thread_pool_.link_Table.size() << std::endl;
-                    //std::this_thread::sleep_for(0.1s);
-                    // if (link_Table.size() < numberThreads) submit(link);
-                    thread_pool_.submit(link);
-                    // break;
-                }
-
-            }
-        }
-        catch (std::exception& e) {
-            std::cerr << "Исключение: " << e.what() << std::endl;
-        }
-
-        return 0;
-#endif // DEBUG_TRHEDPULL
-
-#ifndef DEBUG_TRHEDPULL
 
 // *******************Working code of the program*****************
 //****************************************************************
         try {
-            SPIDER::SpiderSetup setupData("ini.txt"); //     https://httpbin.org/ https://wiki.openssl.org
+            SPIDER::SpiderSetup setupData(nameINIFile); //     https://httpbin.org/ https://wiki.openssl.org
             SPIDER::Link startLink(setupData.startPage_, 1);
 
             SPIDER::Thread_pool thread_pool_;
@@ -286,17 +250,13 @@ int main()
             while (true) {
                 tcp::socket socket(io_context);
                 acceptor.accept(socket);
-                SPIDER::handle_client_http_(socket);
+                SPIDER::handle_client_http_(socket, setupData);
             }
         }
         catch (std::exception& e) {
             std::cerr << "Исключение: " << e.what() << std::endl;
-            std::cout << "RETURN ERROR" << std::endl;
         }
 
-        return 0;
-#endif // !DEBUG_TRHEDPULL
-
-        
+        return 0;    
 #endif // !OLD_DEBUG
 }

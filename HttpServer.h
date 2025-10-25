@@ -4,7 +4,7 @@
 #include <boost/asio.hpp>
 #include <iostream>
 #include <string>
-
+#include <fstream>
 
 #include <vector>
 #include <sstream>
@@ -47,6 +47,7 @@ namespace SPIDER
         return str;
     }
 
+    /*
     inline void handle_client_http_(tcp::socket& socket) {
         try {
             boost::asio::streambuf request_buf;
@@ -122,7 +123,7 @@ namespace SPIDER
 
 
             // Готовим HTML-ответ
-            std::string html_response_template = "<html> <head><title>Ответ</title></head> <body> <h1>The word/combination of words entered: {word}</h1>"; // <p> Number of repetitions on sites: {num1}</p>
+            std::string html_response_template = "<html> <head><title>Ответ</title></head> <body> <h1>The word/combination of words entered: {word}</h1>";
             std::string html_response;
 
             if (documentFrequency.empty()) {
@@ -165,6 +166,167 @@ namespace SPIDER
             std::cerr << "Исключение: " << e.what() << std::endl;
         }
     }
+    */
+
+inline void handle_client_http_(tcp::socket& socket, SpiderSetup spiderSetup) {
+    try {
+        boost::asio::streambuf request_buf;
+        boost::system::error_code error;
+
+        // Читаем заголовки
+        size_t len = boost::asio::read_until(socket, request_buf, "\r\n\r\n", error);
+        if (error && error != boost::asio::error::eof) {
+            std::cerr << "Ошибка чтения заголовков: " << error.message() << std::endl;
+            return;
+        }
+
+        std::istream request_stream(&request_buf);
+        std::string request_line;
+        std::getline(request_stream, request_line);
+        std::string method, path, version;
+
+        std::istringstream req_line_stream(request_line);
+        req_line_stream >> method >> path >> version;
+
+        // Читаем остальные заголовки
+        std::string header;
+        size_t content_length = 0;
+        while (std::getline(request_stream, header) && header != "\r") {
+            if (header.find("Content-Length:") != std::string::npos) {
+                // Получаем длину тела
+                std::string cl = header.substr(header.find(":") + 1);
+                content_length = std::stoi(cl);
+            }
+        }
+
+        std::string body;
+        if (content_length > 0) {
+            // читаем тело
+            if (request_buf.size() < content_length) {
+                boost::asio::read(socket, request_buf, boost::asio::transfer_exactly(content_length - request_buf.size()), error);
+            }
+            std::istream body_stream(&request_buf);
+            std::vector<char> buf(content_length);
+            body_stream.read(buf.data(), content_length);
+            body.assign(buf.begin(), buf.end());
+        }
+
+        // Обрабатываем в зависимости от запроса
+        if (method == "GET") {
+            std::string get_response_body;
+            
+            {
+                std::ifstream file("startPage.html");
+                std::string line;
+                int loacalhost = spiderSetup.portServer_;
+                std::string originLocaleHOST = "localhost:" + std::to_string(loacalhost);
+                std::cout << originLocaleHOST << std::endl;
+                while (std::getline(file, line)) {
+                    size_t pos = line.find("localhost:");
+                    if (pos != std::string::npos) {
+                        line.replace(pos, std::string("localhost:").length(), originLocaleHOST);
+                    }
+                    get_response_body += line;
+                }
+
+                file.close();
+            }
+            
+            std::string response =
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: text/html\r\n"
+                "Access-Control-Allow-Origin: *\r\n"
+                "Content-Length: " + std::to_string(get_response_body.size()) + "\r\n"
+                "\r\n" + get_response_body;
+
+            boost::asio::write(socket, boost::asio::buffer(response), error);
+            return;
+        }
+        else if (method == "POST") {
+
+            std::string word;
+            auto pos = body.find("word=");
+            if (pos != std::string::npos) {
+                auto end_pos = body.find('&', pos);
+                word = body.substr(pos + 5, end_pos - (pos + 5));
+            }
+
+            // Обработать строку и положить отдельные слова в вектор
+            std::vector<std::string> words;
+            splitByDelimiter(word, "%20", words);
+            word = "";
+            for (auto It = words.begin(); It != words.end(); It++) {
+                word += (*It) + " ";
+            };
+
+            if (words.size() > MAX_NUMBER_OF_WORDS_TO_SEARCH_IN_THE_DATABASE) {
+                words.resize(MAX_NUMBER_OF_WORDS_TO_SEARCH_IN_THE_DATABASE);
+            }
+
+
+            std::string documentURL{ "" };
+
+            WordSearchEngineDatabase wordSearchEngineDatabase(spiderSetup.dataSetupBD_);
+            std::vector<DocumentFrequency> documentFrequency;
+            documentFrequency = wordSearchEngineDatabase.getDocumentsByWords(words);
+
+
+
+            // Готовим HTML-ответ
+            std::string html_response_template = "<html> <head><title>Ответ</title></head> <body> <h1>The word/combination of words entered: {word}</h1>";
+            std::string html_response;
+
+            if (documentFrequency.empty()) {
+                html_response_template += "<p> not found on any sites  </p>";
+                html_response_template += " </body> </html>";
+                html_response = html_response_template;
+            }
+            else {
+                for (int i{ 0 }; i < documentFrequency.size(); i++) {
+                    std::string countWord = "{countWord" + std::to_string(i) + "}";
+                    std::string documentURL = "{documentURL" + std::to_string(i) + "}";
+                    html_response_template += "<p> On the website: " + documentURL + ". The number of repetitions of words is: " + countWord + "</p>";
+                }
+
+                html_response_template += " </body> </html>";
+                std::cout << html_response_template << std::endl;
+
+                html_response = replace_all_(html_response_template, "{word}", word);
+                for (int i{ 0 }; i < documentFrequency.size(); i++) {
+                    std::string countWord = "{countWord" + std::to_string(i) + "}";
+                    std::string documentURL = "{documentURL" + std::to_string(i) + "}";
+                    html_response = replace_all_(html_response, documentURL, documentFrequency[i].url);
+                    html_response = replace_all_(html_response, countWord, std::to_string(documentFrequency[i].total_frequency));
+                };
+            }
+            // Формируем ответ
+            std::string response =
+                "HTTP/1.1 200 OK\r\n"
+                "Content-Type: text/html\r\n"
+                "Access-Control-Allow-Origin: *\r\n" // разрешение CORS для всех доменов
+                "Content-Length: " + std::to_string(html_response.size()) + "\r\n"
+                "\r\n" + html_response;
+
+            boost::asio::write(socket, boost::asio::buffer(response), error);
+            return;
+        }
+        else {
+            // Неизвестный метод: отправим простой ответ
+            std::string not_found_response = "<html><body><h1>Метод не поддерживается</h1></body></html>";
+            std::string response =
+                "HTTP/1.1 405 Method Not Allowed\r\n"
+                "Content-Type: text/html\r\n"
+                "Content-Length: " + std::to_string(not_found_response.size()) + "\r\n"
+                "\r\n" + not_found_response;
+            boost::asio::write(socket, boost::asio::buffer(response), error);
+            return;
+        }
+
+    }
+    catch (std::exception& e) {
+        std::cerr << "Исключение: " << e.what() << std::endl;
+    }
+}
     
     
 }

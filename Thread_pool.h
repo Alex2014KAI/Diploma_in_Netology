@@ -96,8 +96,7 @@ namespace SPIDER
 
                     active_threads.fetch_sub(1, std::memory_order_relaxed);
                 }
-                
-#ifndef DEBUG_TRHEDPULL               
+                               
                 while (!link_Table.empty()) { // в условии должен быть флаг о том, что какой то из потоков свободен .... Или вынести while в main что бы не зависал поток
                     std::lock_guard<std::mutex> lock(mutex_iteration);
                     if (active_threads.load() <= (numberThreads)) {
@@ -115,7 +114,6 @@ namespace SPIDER
                     }
 
                 }
-#endif // !DEBUG_TRHEDPULL
                 
                 }
                 catch (std::exception& e) {

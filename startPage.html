@@ -2,20 +2,20 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<title>Программа "Паук"</title>
+<title>The Spider Program</title>
 <style>
-/* Стиль для оверлея загрузки с анимацией */
+/* Style for loading overlay with animation */
 #loadingOverlay {
-    position: fixed; /* перекрывает весь экран */
+    position: fixed;
     top: 0; 
     left: 0; 
     width: 100%; 
     height: 100%; 
-    background-color: rgba(255, 255, 255, 0.8); /* полупрозрачный фон */
-    display: flex; /* центрирование содержимого */
+    background-color: rgba(255, 255, 255, 0.8); 
+    display: flex; 
     justify-content: center; 
     align-items: center; 
-    z-index: 9999; /* поверх всего */
+    z-index: 9999; 
     font-size: 24px;
     font-family: Arial, sans-serif;
 }
@@ -23,19 +23,18 @@
 </head>
 <body>
 
-<!-- Анимационный оверлей загрузки -->
-<div id="loadingOverlay">Идет анализ сайтов пауком...</div>
+<div id="loadingOverlay">The spider is analyzing websites...</div>
 
-<h1 style="text-align: center;">Введите слово или сочетание слов для поиска. Внимание максимальное количесвто слов 3, в случае если вы введете больше будут искаться только первые три слова</h1>
-<h2> Пожалуйста при первом запуске паука подождите 30 секунд, пока не завершиться анализ всех сайтов</h2>
+<h1 style="text-align: center;">Enter a word or combination of words to search. Please note: The maximum number of words is 3. If you enter more, only the first three words will be searched.</h1>
+<h2> Please wait 30 seconds the first time you launch the spider until it has completed analyzing all websites.</h2>
 <form id="wordForm">
-    <label for="wordInput">Введите слово или сочетание слов и нажмите кнопку отправить:</label>
+    <label for="wordInput">Enter a word or combination of words and click the submit button:</label>
     <input type="text" id="wordInput" name="word" required />
-    <button type="submit">Отправить</button>
+    <button type="submit">Send</button>
 </form>
 
 <div id="result" style="margin-top:20px; padding:10px; border:1px solid #ccc;">
-    <h2>Ответ сервера</h2>
+    <h2>Server response</h2>
 </div>
 
 <script>
@@ -43,7 +42,7 @@ document.getElementById('wordForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const word = document.getElementById('wordInput').value;
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'http://localhost:8080/', true);
+    xhr.open('POST', 'http://localhost:/', true);
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
     xhr.onload = function() {
@@ -57,14 +56,13 @@ document.getElementById('wordForm').addEventListener('submit', function(e) {
     xhr.send('word=' + encodeURIComponent(word));
 });
 
-// Скрипт для исчезновения оверлея через 10 секунд
 window.addEventListener('load', () => {
     setTimeout(() => {
         const overlay = document.getElementById('loadingOverlay');
         if (overlay) {
             overlay.style.display = 'none';
         }
-    }, 100); // 0.1 секунд
+    }, 1);
 });
 </script>
 
